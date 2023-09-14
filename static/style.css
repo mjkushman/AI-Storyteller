@@ -1,0 +1,99 @@
+body {
+  background-color: rgb(28, 28, 28);
+}
+
+main {
+  background-color: antiquewhite;
+  width: 50%;
+  position: absolute;
+  left:50%;
+  transform: translate(-50%);
+  /* display: inline-block; */
+}
+
+div {
+    /* border-right: .15em solid orange; The typwriter cursor */
+    font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
+    "Lucida Sans", Arial, sans-serif;
+    font-size: 1.3em;
+    text-align: left;
+    padding: 10px;
+}
+
+.starter {
+    text-align: center;
+}
+
+.form {
+    display: flex;
+
+}
+form {
+    background-color: rgb(0, 0, 0);
+    position: relative;
+}
+
+form #userInput {
+    width: 75%;
+    height: 100%;
+    padding: 16px 10px;
+    font-size:16px;
+    color: #fff;
+    margin: 1px 0px;
+    border: none;
+    background: transparent;
+
+}
+button {
+    padding: 10px 10px;
+    font-size: 16px;
+
+}
+
+.ai {
+  /* animation: ai 3s forwards; */
+  overflow: hidden;
+  color: rgb(0, 0, 120);
+  /* white-space: nowrap; */
+}
+.user {
+  /* animation: user 2s forwards; */
+  color: rgb(120, 0, 0);
+}
+
+/* The typing effect */
+@keyframes ai {
+  from {
+    width: 0;
+    color: blue;
+    border-right: 0.15em solid black;
+    /* opacity: 1; */
+  }
+  to {
+    width: 100%;
+    color: rgb(0, 0, 120);
+    border-right: none;
+    /* opacity: 1; */
+  }
+}
+
+@keyframes user {
+  from {
+    width: 0;
+    color: red;
+    border-right: 0.15em solid black;
+    /* opacity: 1; */
+  }
+  to {
+    width: 100%;
+    color: rgb(120, 0, 0);
+    border-right: none;
+    /* opacity: 1; */
+  }
+}
+
+/* The typewriter cursor effect
+  @keyframes blink-caret {
+    from, to { border-color: transparent }
+    50% { border-color: orange; }
+  } */
