@@ -1,42 +1,37 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="static/style.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
-</head>
-<body>
-    <main>
-        {# <div class="starter">
-            <h1>Continue this story</h1>
-            <p>{{story_starter}}</p>
+
+
+{% extends 'base.html'%}
+    {% block home %}
+        <div class="starter">
+            <h1>Write Together</h1>
         </div>
-        <div id="story">
-        </div>
-        <div class="form">
-            <form action="">
-                <input id="userInput" type="text" name="userInput" placeholder="Add your story here">
-                <button id="submit">Send it</button>
-            </form>
-        </div> #}
-        <div class="container">
-        <form action="", method="POST">
-            {{ form.hidden_tag() }}
-            <div class="input-group">
-            {{form.contribution.label}}
-            {{form.contribution}}
-                  <small class="form-text"
-        >{% for err in form.contribution.errors %} {{err}} {% endfor %}
-      </small>
-      </div>
-      <button>Full Send</button>
+        
+        {# Story Context Form #}
+        <div class="storyContext" id="contextDiv">
+        <form action="" method="GET" id="contextForm">
+            <div class="mb-3">
+                {{contextForm.genre.label(class_='form-label')}}
+                {{contextForm.genre(class_='form-control')}}
+                <small class="form-text">{% for err in contextForm.genre.errors %} {{err}} {% endfor %}
+                </small>
+            </div>
+            <div class="mb-3">
+                {{contextForm.story_prompt.label(class_='form-label')}} <button id="randomizePrompt" class="btn btn-secondary">Randomize</button>
+                <div>{{contextForm.story_prompt(class_='form-control', rows_='2')}}
+                <small class="form-text">{% for err in contextForm.genre.errors %} {{err}} {% endfor %}
+                </div>
+                
+                
+                </small>
+            </div>
+            <button id="submit" class="btn btn-primary" >Start Writing</button>
+            </div>
         </form>
         </div>
-    </main>
-    <!-- <script src="https://code.jquery.com/jquery-3.2.1.js"></script> -->
-    {# <script src="https://unpkg.com/axios/dist/axios.js"></script> #}
-    {# <script src="static/app.js"></script> #}
-</body>
-</html>
+
+        {# Story submission form #}
+        <div class="container" id="contribuionSection">
+        </div>
+       
+        {# End submission form #}
+        {% endblock %}

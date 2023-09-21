@@ -1,0 +1,19 @@
+{# Story submission form #}
+<div class="container">
+  <h2>{{ story_starter }}</h2>
+  {# Story starts here #}
+  <div id="story"></div>
+  {# End of Story #}
+  <form action="" , method="POST" id="inputForm">
+    {{ storyForm.hidden_tag() }} {{ storyForm.story_id }}
+    <div class="input-group">
+      {{storyForm.body.label(class_='form-label')}}
+      {{storyForm.body(class_='form-control', rows_='3')}}
+      <small class="form-text"
+        >{% for err in storyForm.body.errors %} {{err}} {% endfor %}
+      </small>
+    </div>
+    <button id="submit" class="btn btn-primary">Add</button>
+  </form>
+</div>
+{# End submission form #}
