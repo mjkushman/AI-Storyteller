@@ -1,105 +1,111 @@
+let story = {'context':{},'contributions':[]}
+const storyDiv = $('#story')
 
-let STORY
-const submitButton = $('#submit')
 const contributionSection = $('#contribuionSection')
-let inputForm
+const inputForm = $('#inputForm')
 let contextDiv = $('#contextDiv')
+let newStoryBtn = $('#newStoryBtn')
+let logoutLink = $('.logoutLink')
+
+const signUpModal = $('#signUpModal')
+const signInModal = $('#authModal')
 
 
 
-function randomize_prompt(e){
-    // console.log('randomize_prompt called. e:',e)
-    e.preventDefault()
-    let genre = $('#genre').val()
-    console.log(genre)
+function randomizePrompt(e){
+    
+    // e.preventDefault()
+    // randomize the genre
+    let genreOptions = $('#genre option');
+
+    let randomIndex = Math.floor(Math.random() * genreOptions.length);
+    $('#genre').prop("selectedIndex", randomIndex)
+
+    // randomize the prompt
     prompts = 
         [
-        'There was never enough time for',
-        'I used to wonder what happened to Roger. But now,',
+        'There was never enough time.',
+        'I used to wonder what happened to Roger.',
         'One day I woke up to discover I had more arms than usual.',
-        'They called him "King", but only I knew the truth.',
-        'We were 3 best friends. And until yesterday I didn\'t think anything could change that.',
-        'We met in the most trivial of places.',
-        'I get coffee at the same place every morning and I know the staff well. But today there was someone knew behind the counter. I read her name tag.',
-        'No matter how hard I try,',
-        'No matter how hard she tried,',
-        'Business was booming, but',
-        '"See, I told you it would work," I said to my friend.'
+        'Everyone accepted him as King, but only she knew the truth.',
+        "We were 3 best friends for 20 years, until yesterday.",
+        "We met in the most trivial of places.",
+        'I used to think "til death do us part" was just a thing you said.',
+        'I get coffee the same way every morning. But today was different.',
+        "It didn't matter how hard I tried.",
+        "It didn't matter how hard she tried.",
+        "Business was booming but it never lasts.",
+        '"See, I told you it would work," I said.'
 
     ]
-
     let promptIndex = Math.floor(Math.random()* prompts.length)
     $('#storyPrompt').val(prompts[promptIndex]);
 }
 
-$('#randomizePrompt').click(randomize_prompt)
-
+$('#randomizePrompt').click(randomizePrompt)
+$(document).ready(randomizePrompt)
 
 //  Handle submission of context form
-async function processContextForm(e) {
+function processContextForm(e) {
+    // Handling of this form is client-side only.
     e.preventDefault();
-    console.log('story started')
-    let context = $(this).serialize()
+    // console.log('story started')
+    let contextGenre = $('#genre')
+    let contextPrompt = $('#storyPrompt')
+    // populate the story form with these values
+    let storyGenre = $('#story_genre')
+    let storyPrompt = $('#story_prompt')
     
-    // send the start request to server, receive story id
-    await startRequest(context)    
-    // console.log('awaited response',response)
+    storyGenre.val(contextGenre.val())
+    storyPrompt.val(contextPrompt.val())
+    
+    $('#storyGenreHeadline').text(contextGenre.val())
+    $('#storyPromptHeadline').text(contextPrompt.val())
+    $('.context-form').addClass('d-none')
+    $('.context-form').removeClass('d-block')
+    $('.contribution-form').removeClass('d-none')
+    $('.contribution-form').addClass('d-block')
+
+
+    // update story variable. Do I need to do this?
+    story.context= {
+        'genre':$('#genre').val(),
+        'story_prompt':$('#storyPrompt').val()
+    } 
 }
-
-
-// Send a request to start a new story to the server. Requires the context of the story, like genre.
-function startRequest(context){
-    let response = $.ajax({
-        type: 'GET',
-        url: `/api/new?${context}`,
-        success: function(data){
-            // console.log('this is the data',data)
-            contributionSection.html(data) // render the new form on page
-            addListeners();
-            $(contextDiv).remove(); //remove the context form
-            STORY = $('#story') // set story section variable
-        },
-        error: function(){
-            alert('something went wrong')
-        }
-    })
-}
-
-
 
 
 // handle submission of Story form
 async function processStoryForm(e) {
     e.preventDefault();
 
-    // let contribution = $('#inputField').val()
-    // let contributionSerial = $(this).serialize()
-
     formData = new FormData(this);
+    // console.log(this) // evaluates to the form element
     
-    console.log('this',this)
-    // console.log('this values',this.elements['inputField'].value)
-    // console.log('formData',formData);
-
     let userText = this.elements['inputField'].value
-    updateStory(userText, 'user');
-
+    updateStoryDiv(userText, 'user');
+    
     // Send the user's contribution to the server. Expect assistant contribution in response.
     let response = await serverRequest(formData);
-    // console.log('CONTRIBUTION FIELD',$('#inputField'))
-    $('#inputField').val('') //clear out the field
+    
+    updateStoryDiv(response.content, response.role)
+    
+    // update the story variable and store it
+    story.contributions.push({'role':'user','content':userText})
+    story.contributions.push({'role':response.role,'content':response.content})
+    storeStory();
 
-    updateStory(response.body, response.role)
+    $('#inputField').val('') //clear out the field
 }
 
 
 //send the user's input to server
 async function serverRequest(formData){
     
-    console.log('request sent:', JSON.stringify(formData.entries()))
-    console.log('values', formData.values())
-
-    let response = $.ajax({
+    // console.log('request sent:', JSON.stringify(formData.entries()))
+    // console.log('values', formData.values())
+    
+    let response = await $.ajax({
         type: 'POST',
         url: `/api/contribute`,
         data: formData,
@@ -107,7 +113,8 @@ async function serverRequest(formData){
         // contentType: 'application/json',
         contentType: false,
         success: function() {
-            // updateStory(result,'ai')
+            // updateStoryDiv(result,'ai')
+            // addListeners()
             
         },
         error: function(){
@@ -115,27 +122,88 @@ async function serverRequest(formData){
         }
     })
     return response
-    // console.log('contribution response',response)
-
-    // let response = await axios.get(`/api/contribute?contribution=${contribution}`)
-    // console.log(response)
-    // let ai_text = response.data.ai_story
-    // updateStory(ai_text,'ai')
 }
 
 
+async function processSignIn(e){
+    // console.log('processSignIn called')
+
+    e.preventDefault();
+
+    formData = new FormData(this);
+
+    let response = await $.ajax({
+        type: 'POST',
+        url: `/signin`,
+        data: formData,
+        processData: false,
+        // contentType: 'application/json',
+        contentType: false,
+        success: function(response) {
+            // updateStoryDiv(result,'ai')
+            // console.log(response)
+            signInModal.modal('hide')
+            
+        },
+        error: function(){
+            alert('Oh no! Something went wrong.')
+        }
+    })
+    // return response
+    // Set the user variable
+
+}
 
 
+function storeStory(){
+    //store in storage
+    localStorage.setItem('story',JSON.stringify(story))
+}
+
+function passStory(){
+    //pass story to server
+    let savedStory = localStorage.getItem('story',JSON.stringify(story))
+
+    // console.log('saved story', savedStory)
+
+    if (savedStory) {
+        // console.log('savedstory true')
+        $.ajax({
+            url:'/api/retrieve',
+            type: 'POST',
+            data: savedStory,
+            contentType: 'application/json'
+        })
+    }
+    else {
+        // console.log('savedstory false')
+        $.ajax({
+            url:'/api/retrieve',
+            type: 'POST',
+            data: JSON.stringify('none'),
+            contentType: 'application/json'
+        })
+    }
+    
+}
+
+function clearStory(){
+    // clear the story from local storage
+    localStorage.removeItem('story');    
+    let response = $.get('/api/restart',function(){
+        location.href = '/'
+        location.reload()
+    })
+}
 
 
 
 //Render the returned text on page
-function updateStory(body,role){
-    // console.log('updateStory called on',body,role)
-    console.log('text is',body)
-    let span = $('<span />').attr('class',role).html(' '+body);
+function updateStoryDiv(content,role){
+    // console.log('text is',content)
+    let span = $('<span />').attr('class',role).html(' '+content);
 
-    STORY.append(span)
+    storyDiv.append(span)
 }
 
 
@@ -143,14 +211,22 @@ function updateStory(body,role){
 
 
 
-// Add/update event listeners to forms
+// Add event listeners to forms
 
 function addListeners(){
-    inputForm = $('#inputForm')
+    
     inputForm.submit(processStoryForm)
 
     let contextForm = $('#contextForm')
     contextForm.submit(processContextForm)
+
+    logoutLink.click(clearStory)
+
+    newStoryBtn = $('#newStoryBtn')
+    newStoryBtn.on('click',clearStory)
 }
 
 addListeners();
+
+// pass current local storage to app
+passStory();

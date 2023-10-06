@@ -1,0 +1,32 @@
+{% extends 'base.html'%}
+{% block title %}Stories{% endblock %}
+{% block content %}
+
+
+<div class="container text-center">
+<h1 class="display-3">Co-Written Stories</h1>
+</div>
+
+<div class="container">
+<div class="row story-index-container">
+    <div class="col-10 mx-auto">
+
+{% for story in story_list %}
+    <div class="container story-link-div">
+        <a class="link-underline link-underline-opacity-0 story-link" href="{{ url_for('render_story',story_id=story.id) }}">{{story.story_prompt}} {% if story.contributions %} {{story.contributions[0].body}} {% endif %}</a>
+        
+        <p>A <strong>{{ story.genre }}</strong> story by <span class="user">
+        {% for user in story.user%}
+            {{user.username }}
+        {% endfor %}
+        </span> with help from <span class="assistant">AI</span> </p>
+
+    </div>
+{% endfor %}
+
+</div>
+</div>
+</div>
+
+{% endblock %}
+    

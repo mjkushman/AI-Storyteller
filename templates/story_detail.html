@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}{{story.story_prompt}}{% endblock %}
+{% block content %}
+
+
+
+<div class="container">
+
+    <div class="container col-md-8 story">
+
+        <p>A <strong>{{ story.genre }}</strong> story by <span class="user">{% if not story.user.username %} Anonymous 
+        {% else %} {{story.user.username}} {% endif %}</span>
+
+        <p>{{ story.story_prompt }} 
+        {% for contribution in story.contributions %}
+            <span class="{{ contribution.role }}">{{contribution.content}}</span>
+            {% endfor %}</p>
+
+    </div>
+</div>
+
+{% endblock %}

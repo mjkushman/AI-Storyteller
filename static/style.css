@@ -1,99 +1,86 @@
-body {
-  background-color: rgb(28, 28, 28);
-}
 
 main {
   background-color: antiquewhite;
-  width: 50%;
-  position: absolute;
-  left:50%;
-  transform: translate(-50%);
+  width: 100%;
+  height: 100%;
+  min-height: 100vh;
+  /* position: absolute; */
+  /* left:50%; */
+  /* transform: translate(-50%); */
   /* display: inline-block; */
 }
 
-div {
-    /* border-right: .15em solid orange; The typwriter cursor */
-    font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
-    "Lucida Sans", Arial, sans-serif;
-    font-size: 1em;
-    text-align: left;
-    padding: 10px;
+
+h1, h2, h3 {
+  padding:40px 20px;
 }
 
-.starter {
-    text-align: center;
+.story-link {
+  style: none;
+  font-size: 1.1em;
+  color: rgb(31, 31, 49);
 }
 
-.form {
-    display: flex;
+.alerts {
+  margin:0px;
+
 
 }
-form {
-    background-color: rgb(226, 226, 226);
-    position: relative;
+
+.story-link:hover {
+  color:rgb(79, 84, 103);
+}
+.submit, #randomizePrompt, #newStoryBtn {
+  margin: 12px 6px;
 }
 
-form #userInput {
-    width: 75%;
-    height: 100%;
-    padding: 16px 10px;
-    font-size:12px;
-    color: #fff;
-    margin: 1px 0px;
-    border: none;
-    background: transparent;
-
+.story-link-div {
+  margin: 5% 1%;
 }
+
+textarea, select {
+    background-color: transparent;
+    /* border-radius: 16px; */
+    width: 100%;
+    padding: 18px 5px;;
+    border: 0px solid #424242;
+    border-bottom: 1px solid black;
+}
+
+#newStoryBtn {
+  margin: 30px;
+  /* background-color: red; */
+}
+
+.story-index-container {
+  max-width: 80%;
+  padding: 3%;
+  /* justify-items: center; */
+}
+
+textarea:focus, select:focus {
+  outline: none;
+}
+textarea {
+  font-size: 1.2em;
+  /* padding: 5%; */
+}
+
+#story, .story {
+  padding: 5% 1%;
+}
+
 button {
     padding: 10px 10px;
     font-size: 16px;
-
 }
 
 .assistant {
-  /* animation: ai 3s forwards; */
   overflow: hidden;
   color: rgb(0, 0, 120);
-  /* white-space: nowrap; */
+
 }
 .user {
-  /* animation: user 2s forwards; */
+
   color: rgb(120, 0, 0);
 }
-
-/* The typing effect */
-@keyframes ai {
-  from {
-    width: 0;
-    color: blue;
-    border-right: 0.15em solid black;
-    /* opacity: 1; */
-  }
-  to {
-    width: 100%;
-    color: rgb(0, 0, 120);
-    border-right: none;
-    /* opacity: 1; */
-  }
-}
-
-@keyframes user {
-  from {
-    width: 0;
-    color: red;
-    border-right: 0.15em solid black;
-    /* opacity: 1; */
-  }
-  to {
-    width: 100%;
-    color: rgb(120, 0, 0);
-    border-right: none;
-    /* opacity: 1; */
-  }
-}
-
-/* The typewriter cursor effect
-  @keyframes blink-caret {
-    from, to { border-color: transparent }
-    50% { border-color: orange; }
-  } */

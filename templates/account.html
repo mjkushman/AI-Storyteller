@@ -1,0 +1,28 @@
+{#  User's account home #}
+{% extends 'base.html' %}
+{% block title %}Account {% endblock %}
+{% block content %}
+
+<div class="container text-center">
+<div class="row">
+    <h1 class="display-3">Your Stories</h1>
+</div>
+</div>
+
+<div class="container">
+<div class="row story-index-container">
+<div class="col-10 mx-auto">
+
+{% for story in user.stories %}
+<div class="container">
+    <a class="link-underline link-underline-opacity-0 story-link" href="{{ url_for('render_story',story_id=story.id) }}">
+    {{story.story_prompt}} {% if story.contributions %} {{story.contributions[0].body}} {% endif %}</a>
+    <p>A <strong>{{ story.genre }}</strong> story by <span class="user">{% if not story.user.username %} Anonymous 
+    {% else %} {{story.user.username}} {% endif %}</span> with help from <span class="assistant">AI</span></p>
+</div>
+{% endfor %}
+
+</div>
+</div>
+</div>
+{% endblock %}

@@ -1,19 +1,131 @@
-{# Story submission form #}
-<div class="container">
-  <h2>{{ story_starter }}</h2>
-  {# Story starts here #}
-  <div id="story"></div>
-  {# End of Story #}
-  <form action="" , method="POST" id="inputForm">
-    {{ storyForm.hidden_tag() }} {{ storyForm.story_id }}
-    <div class="input-group">
-      {{storyForm.body.label(class_='form-label')}}
-      {{storyForm.body(class_='form-control', rows_='3')}}
-      <small class="form-text"
-        >{% for err in storyForm.body.errors %} {{err}} {% endfor %}
-      </small>
-    </div>
-    <button id="submit" class="btn btn-primary">Add</button>
-  </form>
+{% extends 'base.html'%}
+
+
+{% block content %}
+
+<div class="container text-center">
+  <h1 class="display-1">Write Together</h1>
 </div>
+
+<div class="row align-items-center">
+
+{# user id is {{user.id}} #}
+<div class="context-form {{context_display}}">
+  <div class="container col-md-5 mx-auto">
+
+      <div class="storyContext container-fluid mx-auto" id="contextDiv">
+        
+        {#  Context Form start  #}
+        <form action="" method="GET" id="contextForm">
+          <div class="container text-center">
+
+            {#  Genre  #}
+          <div class="form mb-3 text-center">
+              <p>Choose a genre and starting story prompt.</p>
+              <p>Take turns writing the story with an AI co-writer.</p>
+              {{contextForm.genre(class_='')}}
+          </div>
+
+            {#  Prompt #}
+            <div class="form mb-3 text-center">
+              <div>{{contextForm.story_prompt(class_='', rows_='2')}}
+              {% for err in contextForm.story_prompt.errors %}<small class="form-text">{{err}}</small>{% endfor %}
+              </div> 
+            </div>
+          
+          {#  randomize and submit buttons #}
+          <div class="container">
+            <div class="row justify-content-center">
+
+              <div class="col-4">
+                <button id="randomizePrompt" type="button" class="btn btn-outline-secondary">Randomize</button>
+              </div>
+              <div class="col-4">
+                <div class="container"><button id="contextSubmit" class="btn btn-outline-primary btn-lg submit">Start Writing</button></div>
+              </div>
+
+            </div>
+
+            <div class="row">
+              
+            </div>
+          </div>
+        
+         </div>
+         </form>
+
+         {#  Context Form end  #}
+      </div>
+  </div>
+</div>
+
+{# Story submission form #}
+<div class="container contribution-form {{contribution_display}}">
+  
+    {# Story starts here #}
+    <div id="story" class="col-md-8 mx-auto">
+      <p id="storyGenreHeadline"></p>
+      <h2 id="storyPromptHeadline">{% if story %}{{ story.story_prompt }}{% endif %}</h2>
+  
+      {% for contribution in contributions %}
+          <span class="{{contribution['role']}}">{{contribution['content']}}</span>
+          {% endfor %}
+    </div>
+  {# End of Story #}
+
+{# contribution form #}
+  <div class="container col-md-6 mx-auto">
+    <form action="" method="POST" id="inputForm">
+      {{ story_form.hidden_tag() }} {{ story_form.story_id }}
+      
+      <div class="container">
+      <div class="form-group mb-3">
+        {{story_form.body(class_='contribution-area', rows_='3')}}
+        {# {{story_form.body.label(class_='form-label')}} #}
+      </div>
+      
+      <!-- Sign in link -->
+      {% if not user%}
+      <p>
+        <a href="/sign-in">Sign in</a> to save this story.
+      </p>
+        {% else %}
+        <p>Story is saved automatically.</p>
+      {% endif %}
+      </div>
+
+
+  </div>
+
+        <small class="form-text"
+          >{% for err in story_form.body.errors %} {{err}} {% endfor %}
+        </small>
+    
+  
+  
+      <div class="container text-center">
+        <button id="storySubmit" class="btn btn-primary btn-lg submit">Add</button>
+      </div>
+    </form>
 {# End submission form #}
+
+<div class="container text-center restart-btn">
+<div class="row"><div class="col">
+<!-- NEW STORY BUTTON -->
+<button class="btn btn-outline-secondary" id="newStoryBtn">New story</button>
+</div></div>
+</div>
+
+
+
+</div>
+{#  End contribution section #}
+  
+
+
+
+
+</div>
+
+
+{% endblock %}

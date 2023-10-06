@@ -1,0 +1,42 @@
+{% extends 'base.html' %} {% block title %}Create an Account {% endblock %} {%
+block content %}
+
+<div class="container text-center">
+
+  <div class="header">
+    {% for category, message in get_flashed_messages(with_categories=True) %}
+    <div class="alert alert-{{ category }}">{{ message }}</div>
+    {% endfor %}
+    <h1 class="display-3">Create an Account</h1>
+  </div>
+
+<div class="row">
+  <div class="container col-6 mx-auto">
+    
+  
+    <form action="" , method="POST" id="signUpForm">
+      {{ form.hidden_tag() }}
+      <div>
+        {% for field in form if field.widget.input_type != 'hidden' %}
+        <div class="form-floating mb-3">
+          {{field(class_='form-control')}} {{field.label(class_='form-label')}}
+          {% for err in field.errors %}
+          <small class="form-text"> {{err}} </small> {% endfor %}
+        </div>
+        {% endfor %}
+      </div>
+      <button id="submit" class="btn btn-primary">Submit</button>
+    </form>
+  
+  </div>
+  </div>
+  
+  <div>
+    Already have an account?
+    <a class="sign-in" href="/sign-in"> Sign In</a>
+  </div>
+
+</div>
+
+
+{% endblock %}
