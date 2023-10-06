@@ -9,8 +9,11 @@
 
     <div class="container col-md-8 story">
 
-        <p>A <strong>{{ story.genre }}</strong> story by <span class="user">{% if not story.user.username %} Anonymous 
-        {% else %} {{story.user.username}} {% endif %}</span>
+        <p>A <strong>{{ story.genre }}</strong> story by <span class="user">
+        {% for user in story.user%}
+            {{user.username }}
+        {% endfor %}
+        </span>
 
         <p>{{ story.story_prompt }} 
         {% for contribution in story.contributions %}

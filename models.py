@@ -157,7 +157,7 @@ class Contribution(db.Model):
         ''' Return a jsonable dictionary representing this contribution '''
         return {
             'id': self.id,
-            'user_id': self.user_id
+            'user_id': self.user_id,
             'role': self.role,
             'story_id': self.story_id,
             'tokens': self.tokens,

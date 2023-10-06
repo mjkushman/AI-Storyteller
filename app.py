@@ -19,7 +19,7 @@ from forms import StoryForm, ContextForm, SignUpForm, SignInForm
 from sqlalchemy.exc import IntegrityError
 
 
-from models import db, connect_db, User, Story, Contribution, Guest, AnonStory
+from models import db, connect_db, User, Story, Contribution, AnonStory
 from flask_debugtoolbar import DebugToolbarExtension
 
 CURRENT_USER_KEY = "current_user"
