@@ -1,6 +1,6 @@
 import os
 import openai
-import requests, json
+import json
 
 from flask import (
     Flask,
@@ -31,12 +31,16 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 app = Flask(__name__)
 # app.debug = True
 app.config["SECRET_KEY"] = "mysecurepassword"
-app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql:///ai_storyteller_db"
+# app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql:///ai_storyteller_db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ECHO"] = False
 app.config["DEBUG_TB_INTERCEPT_REDIRECTS"] = False
 
-debug = DebugToolbarExtension(app)
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "Igottacheckmyemail")
+app.config['SQLALCHEMY_DATABASE_URI'] = (
+    os.environ.get('DATABASE_URL', 'postgresql:///ai_storyteller_db'))
+
+# debug = DebugToolbarExtension(app)
 
 # app.config['DEBUG'] = True
 # app.config['ENV'] = 'development'
@@ -257,13 +261,16 @@ def render_user_home(username):
 @app.route('/api/retrieve', methods=['POST'])
 def retrieve_story():
     data = request.get_json()
+
     # print('RETRIEVE REQUEST', data)
     if data == 'none':
-        session.pop(STORY_KEY)
-        return 'cleared'
+        print('===RETRIEV NONE===')
+        # session.pop(STORY_KEY)
+        return jsonify(story='none')
     else:
+        print('===RETRIEV OK===')
         session[STORY_KEY] = json.dumps(data)
-        return 'ok'
+        return jsonify(story='loaded')
 
 
 @app.route("/api/contribute", methods=["POST"])
