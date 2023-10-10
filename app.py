@@ -29,7 +29,7 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 
 
 app = Flask(__name__)
-# app.debug = True
+# app.debug = Trueech
 app.config["SECRET_KEY"] = "mysecurepassword"
 # app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql:///ai_storyteller_db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -45,8 +45,8 @@ app.config["MAIL_SERVER"] = "smtp.dreamhost.com"
 app.config["MAIL_PORT"] = 465
 app.config["MAIL_USE_SSL"] = True
 app.config["MAIL_USERNAME"] = 'contact@writealong.xyz'
-# app.config["MAIL_PASSWORD"] = os.environ.get('MAIL_PASSWORD', 'XnH8Qhu9q7t3Qa@')
-app.config["MAIL_PASSWORD"] = 'XnH8Qhu9q7t3Qa@'
+app.config["MAIL_PASSWORD"] = (os.environ.get('MAIL_PASSWORD'))
+# app.config["MAIL_PASSWORD"] = 'XnH8Qhu9q7t3Qa@'
 mail.init_app(app)
 
 
@@ -268,6 +268,8 @@ def render_user_home(username):
 
 @app.route('/about', methods=['GET','POST'])
 def render_about():
+    pw = os.environ.get('MAIL_PASSWORD')
+    print ('MAIL_PASSWORD:', pw)
     form = ContactForm()
     if request.method == 'POST':
         if form.validate_on_submit():
