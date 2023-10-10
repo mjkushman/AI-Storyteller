@@ -10,7 +10,7 @@ class ContextForm(FlaskForm):
     story_prompt = TextAreaField("Story Prompt", validators=[InputRequired(message='Please include a starter prompt')], id='storyPrompt', )
 
 class StoryForm(FlaskForm):
-    body = TextAreaField("", validators=[InputRequired(message='How will you add to the story?'), Length(min=1,max=100)], id='inputField')
+    body = TextAreaField("", validators=[InputRequired(message='How will you add to the story?'), Length(min=1,max=400)], id='inputField')
     story_id = HiddenField("", validators=[InputRequired()])
     story_genre = HiddenField("")
     story_prompt = HiddenField("")
@@ -25,3 +25,8 @@ class SignUpForm(FlaskForm):
 class SignInForm(FlaskForm):
      email = StringField("Email", validators=[InputRequired(message='Email is required'), Email(message='Please enter a valid email address.')], id='email', render_kw={"placeholder": "Email"})
      password = PasswordField('Password', [InputRequired()], render_kw={"placeholder": "Password"})
+
+class ContactForm(FlaskForm):
+    name = StringField("Your Name", render_kw={"placeholder":"Name"})
+    email = StringField("Email", validators=[InputRequired(message='Email is required'), Email(message='Please enter a valid email address.')], id='email', render_kw={"placeholder": "Email"})
+    message = TextAreaField("Message", validators=[InputRequired()], render_kw={"placeholder":"Write a message", "rows": 3})

@@ -1,0 +1,103 @@
+{# About page #} {% extends 'base.html' %} {% block title %}About Write Along {%
+endblock %} {% block content %}
+
+<div class="container text-center">
+  <div class="row">
+    <h1 class="display-3">About AI Write Along</h1>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row container">
+    <div class="col-10 mx-auto">
+      <section>
+        <div class="container">
+          <h2>What is AI Write Along?</h2>
+          <p>
+            Write Along is a tool to let people write short with an AI
+            co-writing assistant. Since the AI writing assistant is
+            unpredictable, you as an author won't really know where the story is
+            going. It's like literary jazz!
+          </p>
+          <p>second paragraph</p>
+        </div>
+      </section>
+
+      <section>
+        <div class="container">
+          <h2>How does it work?</h2>
+          <p>A story starts with a genre and a starter prompt.</p>
+          <ol>
+            <li>
+              Choose a genre and a starter prompt. You can write your own prompt
+              or use a random one.
+            </li>
+            <li>Write a sentence or two to continue the story.</li>
+            <li>The AI assistant will take a turn adding to the story.</li>
+            <li>Repeat steps 2 and 3 as desired</li>
+          </ol>
+          <h4>Behind the scenes:</h4>
+          <p>
+            The AI assistant powered by OpenAI (the makers of ChatGPT) is asked
+            to co-write a story according to the genre and prompt.
+            <li>
+              Each time a user makes an addition to the story, an API call is
+              made to OpenAI.
+            </li>
+            <li>
+              The API call contains either most or all of the current story,
+              including who wrote which parts.
+            </li>
+            <li>
+              The AI assistant sends back a short extension story, which gets
+              appended to the overall story.
+            </li>
+            <br />
+            The exact prompt, you ask? Reach out to me for more detail!
+          </p>
+        </div>
+      </section>
+
+      <section>
+        <div class="container contact-div">
+      {% if success %}
+        <p>Thank you for your message!</p>
+        {% elif fail %}
+        <p>Sorry, something went wrong</p>
+      {% else %}
+          <h2>Comments, questions, suggestions? Get in touch.</h2>
+          <form action="" , method="POST" id="contactForm">
+            {{ form.hidden_tag() }}
+            <div>
+              
+              <div class="form-group mb-3">
+                <div>
+                    {{form.name}}
+                    {% for err in form.name.errors%}
+                    <small class="form-text"> {{err}} </small>
+                    {% endfor %}
+                </div>
+                <div>
+                    {{form.email}}
+                    {% for err in form.email.errors%}
+                    <small class="form-text"> {{err}} </small>
+                    {% endfor %}
+                </div>
+                <div>
+                {{form.message(class_='contribution-area')}}
+                {% for err in form.message.errors%}
+                <small class="form-text"> {{err}} </small>
+                {% endfor %}
+                </div>
+              </div>
+
+            </div>
+            <button id="submit" class="btn btn-outline-secondary">Send</button>
+          </form>
+        {% endif %}
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+{% endblock %}

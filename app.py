@@ -6,21 +6,21 @@ from flask import (
     Flask,
     request,
     render_template,
-    render_template_string,
     redirect,
     flash,
     jsonify,
     session,
     g,
-    render_template_string,
-    url_for,
+    url_for
 )
-from forms import StoryForm, ContextForm, SignUpForm, SignInForm
+from flask_mail import Mail, Message
+from forms import StoryForm, ContextForm, SignUpForm, SignInForm, ContactForm
 from sqlalchemy.exc import IntegrityError
 
 
 from models import db, connect_db, User, Story, Contribution, AnonStory
 from flask_debugtoolbar import DebugToolbarExtension
+
 
 CURRENT_USER_KEY = "current_user"
 STORY_KEY = 'story'
@@ -39,6 +39,16 @@ app.config["DEBUG_TB_INTERCEPT_REDIRECTS"] = False
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "Igottacheckmyemail")
 app.config['SQLALCHEMY_DATABASE_URI'] = (
     os.environ.get('DATABASE_URL', 'postgresql:///ai_storyteller_db'))
+
+mail = Mail()
+app.config["MAIL_SERVER"] = "smtp.dreamhost.com"
+app.config["MAIL_PORT"] = 465
+app.config["MAIL_USE_SSL"] = True
+app.config["MAIL_USERNAME"] = 'contact@writealong.xyz'
+# app.config["MAIL_PASSWORD"] = os.environ.get('MAIL_PASSWORD', 'XnH8Qhu9q7t3Qa@')
+app.config["MAIL_PASSWORD"] = 'XnH8Qhu9q7t3Qa@'
+mail.init_app(app)
+
 
 # debug = DebugToolbarExtension(app)
 
@@ -153,7 +163,7 @@ def render_home():
         contributions = story.contributions
 
         story_form = StoryForm(story_prompt=story_prompt, story_genre=genre)
-        return render_template('contribute.html', user=user, story=story, story_form=story_form, contributions=contributions, contextForm=context_form,context_display=context_display, contribution_display=contribution_display)
+        return render_template('write.html', user=user, story=story, story_form=story_form, contributions=contributions, contextForm=context_form,context_display=context_display, contribution_display=contribution_display)
 
 
     else:
@@ -163,7 +173,7 @@ def render_home():
         contribution_display='d-none'
 
 
-        return render_template("contribute.html", contextForm=context_form,user=user, story_form=StoryForm(),context_display=context_display, contribution_display=contribution_display)
+        return render_template("write.html", contextForm=context_form,user=user, story_form=StoryForm(),context_display=context_display, contribution_display=contribution_display)
 
 
 @app.route('/sign-up', methods=['GET','POST'])
@@ -255,6 +265,29 @@ def render_user_home(username):
     else:
         return redirect(url_for('render_home'))
 
+
+@app.route('/about', methods=['GET','POST'])
+def render_about():
+    form = ContactForm()
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            msg = Message(
+                subject='WriteAlong |  New Contact Form Submission',
+                recipients=['mjkushman@gmail.com'],
+                sender=f'contact@writealong.xyz',
+                reply_to=form.email.data)
+
+            msg.body = f"""FROM: {form.name.data} <{form.email.data}>,\n
+            MESSAGE: {form.message.data}"""
+            try:
+                mail.send(msg)
+                return render_template('about.html', success=True)
+            except:
+                return render_template('about.html', fail=True)
+            
+            
+    else:
+        return render_template('about.html', form=form)
 
 #=================== API ROUTES ==================
 

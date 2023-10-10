@@ -12,7 +12,7 @@ main {
 
 
 h1, h2, h3 {
-  padding:40px 20px;
+  padding:40px 0px;
 }
 
 .story-link {
@@ -23,8 +23,6 @@ h1, h2, h3 {
 
 .alerts {
   margin:0px;
-
-
 }
 
 .story-link:hover {
@@ -38,7 +36,7 @@ h1, h2, h3 {
   margin: 5% 1%;
 }
 
-textarea, select {
+textarea, select, input {
     background-color: transparent;
     /* border-radius: 16px; */
     width: 100%;
@@ -58,12 +56,16 @@ textarea, select {
   /* justify-items: center; */
 }
 
-textarea:focus, select:focus {
+textarea:focus, select:focus, input:focus {
   outline: none;
 }
 textarea {
   font-size: 1.2em;
   /* padding: 5%; */
+}
+
+.contact-div {
+  padding: 30px;
 }
 
 #story, .story {

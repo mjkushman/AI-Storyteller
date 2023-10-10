@@ -5,7 +5,7 @@
 {% block content %}
 
 <div class="container text-center">
-  <h1 class="display-1">Write Together</h1>
+  <h1 class="display-1">Write along with AI</h1>
 </div>
 
 <div class="row align-items-center">
@@ -13,7 +13,8 @@
 {# user id is {{user.id}} #}
 <div class="context-form {{context_display}}">
   <div class="container col-md-5 mx-auto">
-
+          <div class="text-center"> <p>Choose a genre and starting story prompt.</p>
+          <p>Take turns writing the story with an AI co-writer.</p></div>
       <div class="storyContext container-fluid mx-auto" id="contextDiv">
         
         {#  Context Form start  #}
@@ -22,8 +23,6 @@
 
             {#  Genre  #}
           <div class="form mb-3 text-center">
-              <p>Choose a genre and starting story prompt.</p>
-              <p>Take turns writing the story with an AI co-writer.</p>
               {{contextForm.genre(class_='')}}
           </div>
 
