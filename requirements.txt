@@ -13,6 +13,7 @@ email-validator==2.0.0.post2
 Flask==2.3.2
 Flask-Bcrypt==1.0.1
 Flask-DebugToolbar==0.13.1
+Flask-Mail==0.9.1
 Flask-SQLAlchemy==3.0.5
 Flask-WTF==1.1.1
 frozenlist==1.4.0

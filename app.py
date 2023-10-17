@@ -437,12 +437,11 @@ def handle_submission():
         tokens=ai_contribution["tokens"],
     )
 
-    print('g.user',g.user)
     # if session.get(CURRENT_USER_KEY):
     if g.user:
         # do this if user is logged in
         # print('logged in submission')
-        # story.contribute("user", text, user_id=g.user.id)
+
         db.session.add(story)
         db.session.commit()
 
