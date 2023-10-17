@@ -5,7 +5,7 @@
 {% block content %}
 
 <div class="container text-center">
-  <h1 class="display-1">Write along with AI</h1>
+  <h1 class="display-4">Write along with AI</h1>
 </div>
 
 <div class="row align-items-center">
@@ -20,10 +20,14 @@
         {#  Context Form start  #}
         <form action="" method="GET" id="contextForm">
           <div class="container text-center">
+              
+              <div class="col text-center">
+                <button id="randomizePrompt" type="button" class="btn btn-outline-secondary">Randomize genre and prompt</button>
+              </div>
 
             {#  Genre  #}
           <div class="form mb-3 text-center">
-              {{contextForm.genre(class_='')}}
+              {{contextForm.genre(class_='')}} 
           </div>
 
             {#  Prompt #}
@@ -37,11 +41,10 @@
           <div class="container">
             <div class="row justify-content-center">
 
-              <div class="col-4">
-                <button id="randomizePrompt" type="button" class="btn btn-outline-secondary">Randomize</button>
-              </div>
-              <div class="col-4">
-                <div class="container"><button id="contextSubmit" class="btn btn-outline-primary btn-lg submit">Start Writing</button></div>
+              <div class="col">
+                <div class="container"><button id="contextSubmit" class="btn btn-outline-primary btn-lg submit">Start Writing</button>
+                </div>
+
               </div>
 
             </div>
@@ -64,12 +67,19 @@
   
     {# Story starts here #}
     <div id="story" class="col-md-8 mx-auto">
-      <p id="storyGenreHeadline"></p>
-      <h2 id="storyPromptHeadline">{% if story %}{{ story.story_prompt }}{% endif %}</h2>
+
+
+      <p id="storyGenreHeadline">{% if genre %} {{genre}} {% endif %} Story</p>
+      <span id="storyPromptHeadline">{% if story %}{{ story.story_prompt }}{% endif %}</span>
   
       {% for contribution in contributions %}
           <span class="{{contribution['role']}}">{{contribution['content']}}</span>
           {% endfor %}
+        <div class="typing-message" id="typing-message" style="display: none;">
+          <span class="typing-dots"></span>
+          <span class="typing-dots"></span>
+          <span class="typing-dots"></span>
+        </div>
     </div>
   {# End of Story #}
 
@@ -80,22 +90,14 @@
       
       <div class="container">
       <div class="form-group mb-3">
+        <small id="turn-notice">Write more to this story or skip your turn.</small>
         {{story_form.body(class_='contribution-area', rows_='3')}}
         {# {{story_form.body.label(class_='form-label')}} #}
       </div>
       
-      <!-- Sign in link -->
-      {% if not user%}
-      <p>
-        <a href="/sign-in">Sign in</a> to save this story.
-      </p>
-        {% else %}
-        <p>Story is saved automatically.</p>
-      {% endif %}
       </div>
 
 
-  </div>
 
         <small class="form-text"
           >{% for err in story_form.body.errors %} {{err}} {% endfor %}
@@ -105,15 +107,26 @@
   
       <div class="container text-center">
         <button id="storySubmit" class="btn btn-primary btn-lg submit">Add</button>
+        <button id="skipTurn" class="btn btn-outline-primary btn-md skip-turn">Skip</button>
       </div>
     </form>
+  </div>
 {# End submission form #}
 
 <div class="container text-center restart-btn">
 <div class="row"><div class="col">
 <!-- NEW STORY BUTTON -->
-<button class="btn btn-outline-secondary" id="newStoryBtn">New story</button>
-</div></div>
+<button class="btn btn-outline-secondary" id="newStoryBtn">Start Over</button>
+</div>
+      <!-- Sign in link -->
+      {% if not user%}
+      <p>
+        <a href="/sign-in">Sign in</a> to save this story.
+      </p>
+        {% else %}
+        <p>Story is saved automatically.</p>
+      {% endif %}
+</div>
 </div>
 
 

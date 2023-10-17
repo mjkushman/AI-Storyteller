@@ -8,6 +8,12 @@
 <div class="container">
 
     <div class="container col-md-8 story">
+        {% if story.title%}
+            <h2 class="display-2">{{story.title}}</h2>
+        {% endif %}
+        {% if is_user_story %}
+            <a href={{ url_for( 'render_story_edit', story_id=story.id) }}>Edit title</a>
+        {% endif %}
 
         <p>A <strong>{{ story.genre }}</strong> story by <span class="user">
         {% for user in story.user%}
@@ -15,7 +21,7 @@
         {% endfor %}
         </span>
 
-        <p>{{ story.story_prompt }} 
+        <p><span class="storyPromptHeadline">{{ story.story_prompt }} </span>
         {% for contribution in story.contributions %}
             <span class="{{ contribution.role }}">{{contribution.content}}</span>
             {% endfor %}</p>

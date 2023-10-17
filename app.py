@@ -29,16 +29,17 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 
 
 app = Flask(__name__)
-# app.debug = Trueech
+app.debug = True
 app.config["SECRET_KEY"] = "mysecurepassword"
 # app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql:///ai_storyteller_db"
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-app.config["SQLALCHEMY_ECHO"] = False
+# app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+# app.config["SQLALCHEMY_ECHO"] = False
 app.config["DEBUG_TB_INTERCEPT_REDIRECTS"] = False
 
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "Igottacheckmyemail")
 app.config['SQLALCHEMY_DATABASE_URI'] = (
     os.environ.get('DATABASE_URL', 'postgresql:///ai_storyteller_db'))
+
 
 mail = Mail()
 app.config["MAIL_SERVER"] = "smtp.dreamhost.com"
@@ -46,22 +47,21 @@ app.config["MAIL_PORT"] = 465
 app.config["MAIL_USE_SSL"] = True
 app.config["MAIL_USERNAME"] = 'contact@writealong.xyz'
 app.config["MAIL_PASSWORD"] = (os.environ.get('MAIL_PASSWORD'))
-# app.config["MAIL_PASSWORD"] = 'XnH8Qhu9q7t3Qa@'
 mail.init_app(app)
 
 
-# debug = DebugToolbarExtension(app)
+debug = DebugToolbarExtension(app)
 
-# app.config['DEBUG'] = True
-# app.config['ENV'] = 'development'
-# app.config['TESTING'] = True
+app.config['DEBUG'] = True
+app.config['ENV'] = 'development'
+app.config['TESTING'] = True
 
 with app.app_context():
     connect_db(app)
     db.create_all()
 
 """
-====================================MAKE CALL TO AI ==============================
+==================================== ==============================
 """
 
 
@@ -78,8 +78,9 @@ def do_logout():
     if STORY_KEY in session:
         del session[STORY_KEY]
 
-def set_story_session(story):
-    db.session = story.id
+# is this DEPRECATED???
+# def set_story_session(story):
+#     db.session = story.id
 
 def clear_story():
     if STORY_KEY in session:
@@ -113,7 +114,8 @@ def set_user():
         # No story in session or local storage
         g.story = None
 
-    # print('current g.story',g.story)
+    print('current g.story',g.story)
+    print('current g.user',g.user)
 
 
 
@@ -122,7 +124,8 @@ def set_user():
 def render_home():
     user = g.user #evaluates to a user object or None
     story = g.story
-    
+    key = os.getenv("OPENAI_API_KEY")
+    print('KEY', key)
     context_form = ContextForm()
 
     context_form.genre.choices = [
@@ -163,7 +166,7 @@ def render_home():
         contributions = story.contributions
 
         story_form = StoryForm(story_prompt=story_prompt, story_genre=genre)
-        return render_template('write.html', user=user, story=story, story_form=story_form, contributions=contributions, contextForm=context_form,context_display=context_display, contribution_display=contribution_display)
+        return render_template('write.html', user=user, story=story, story_form=story_form, contributions=contributions, contextForm=context_form,context_display=context_display, contribution_display=contribution_display, genre=genre)
 
 
     else:
@@ -217,9 +220,14 @@ def render_sign_in():
         if user:
             do_login(user)
             if story:
+                print('about to convert story to story')
                 story = story.convert_to_story(user)
+                print('converted story')
+                g.story = story
                 session[STORY_KEY] = json.dumps(story.serialize())
             flash(f'Welcome back {user.username}', 'success')
+            # return ('thanks')
+        
             return redirect('/')
 
         else: 
@@ -248,11 +256,39 @@ def render_stories_index():
 
 @app.route('/stories/<story_id>')
 def render_story(story_id):
-
+    user = g.user
     story = Story.query.get_or_404(story_id)
-
-    return render_template('story_detail.html', story=story)
     
+    is_user_story = bool(user and story in user.stories)
+    print(is_user_story)
+
+    return render_template('story_detail.html', story=story, is_user_story=is_user_story)
+
+@app.route('/stories/<story_id>/edit', methods=['GET','POST'])
+def render_story_edit(story_id):
+    print(request.method)
+    print(request.args)
+    print(request.form)
+    user = g.user
+    story = Story.query.get_or_404(story_id)
+    # If the current story doesn't belong to user, redirect to story detail, not edit
+
+    if story not in user.stories:
+        return redirect(url_for(render_story(story_id)))
+
+    form = StoryForm(story_id=story_id)
+
+    if form.validate_on_submit():
+        story.title = form.title.data
+        db.session.add(story)
+        db.session.commit()
+        flash('Story updated','success')
+
+        return redirect(url_for('render_story',story_id=story_id))
+
+
+    return render_template('story_edit.html', form=form, story=story)
+
 
 @app.route('/<username>')
 def render_user_home(username):
@@ -266,10 +302,13 @@ def render_user_home(username):
         return redirect(url_for('render_home'))
 
 
-@app.route('/about', methods=['GET','POST'])
+@app.route('/about', methods=['GET'])
 def render_about():
-    pw = os.environ.get('MAIL_PASSWORD')
-    print ('MAIL_PASSWORD:', pw)
+    return render_template('about.html')
+
+
+@app.route('/contact', methods=['GET','POST'])
+def render_contact():
     form = ContactForm()
     if request.method == 'POST':
         if form.validate_on_submit():
@@ -283,52 +322,94 @@ def render_about():
             MESSAGE: {form.message.data}"""
             try:
                 mail.send(msg)
-                return render_template('about.html', success=True)
+                return render_template('contact.html', success=True)
             except:
-                return render_template('about.html', fail=True)
-            
+                return render_template('contact.html', fail=True)
             
     else:
-        return render_template('about.html', form=form)
+        return render_template('contact.html', form=form)
+
 
 #=================== API ROUTES ==================
 
 @app.route('/api/retrieve', methods=['POST'])
 def retrieve_story():
     data = request.get_json()
+    print('RETRIEVE DATAAAAAAAA',data)
+    story=g.story
+    print('RETRIEVE STORYYYYYYY',story)
+    
+    #  If there's already a story in session, send back most updated story
+    if story:
+        return jsonify(story=story.serialize())
+    
+    #  Check if a story is sent in the call. Accept the new story, then return it back
+    if data:
+        session[STORY_KEY] = json.dumps(data)
+        return jsonify(story=session[STORY_KEY])
+    #  If no story saved on server or in call, return empty story
+    else:
+        return jsonify(story='')
+
 
     # print('RETRIEVE REQUEST', data)
     if data == 'none':
-        print('===RETRIEV NONE===')
+        print('===RETRIEVE NONE===')
         # session.pop(STORY_KEY)
         return jsonify(story='none')
     else:
-        print('===RETRIEV OK===')
+        print('===RETRIEVE OK===')
         session[STORY_KEY] = json.dumps(data)
         return jsonify(story='loaded')
+
+
+@app.route('/api/title-update', methods=['POST'])
+def handle_title_update():
+    """ Handles the request to change the title of a story. Story must have already been instantiated """
+    story = g.story
+    if not story:
+        return('Write a story first.')
+    
+    story.title = request.form.get('title')
+    if g.user:
+        db.session.add(story)
+        db.session.commit
+    # dump the serialized story back into the flask session
+    session[STORY_KEY] = json.dumps(story.serialize())
+    return jsonify(story=story.serialize())
+
 
 
 @app.route("/api/contribute", methods=["POST"])
 def handle_submission():
     """Receive the API call from JS front end. Trigger appropriate functions"""
-    # print('NEW CONTRIBUTE REQUEST RECEIVED')
+    print('NEW CONTRIBUTE REQUEST RECEIVED')
 
-    story = g.story
+    
+    story = g.story # May evaluate to a story or None (aka False)
+    print('STORY in CONTRIBUTE',story)
 
     text = request.form.get("body")
     content = request.form.get("body")
     story_prompt = request.form.get('story_prompt')
     genre = request.form.get('story_genre')
 
+    print('content is or false?')
+    print(bool(content))
+
 
     if g.user:
         # create a real story if logged in
         if not story:
+            print('NOT STORY')
             story = Story(
                 genre = genre,
-                story_prompt = story_prompt
-                )
-        db.session.add(story.contribute(role='user',content=content))
+                story_prompt = story_prompt)
+            db.session.add(story)
+            db.session.commit()
+        if bool(content):
+            story.contribute(role='user',content=content,user_id=g.user.id)
+            db.session.add(story)
         db.session.add(story)
         db.session.commit()
 
@@ -339,15 +420,16 @@ def handle_submission():
                 genre = genre,
                 story_prompt = story_prompt
                 )
-        story.contribute(role='user',content=content)
+        if content:
+            story.contribute(role='user',content=content)
     
-    # print('PRINTING story = gstory ',story)
-    # print('PRINTING story contributions= gstory ')
-    # print([s for s in story.contributions])
+    print('PRINTING story = gstory ',story)
+    print('PRINTING story contributions= gstory ')
+    print([s for s in story.contributions])
     
     # GET AI CONTRIBUTION
     ai_contribution = get_ai_contribution(story)
-
+    print('AI CONTRIBUTION',ai_contribution)
     
     story.contribute(
         role=ai_contribution["role"],
@@ -355,19 +437,23 @@ def handle_submission():
         tokens=ai_contribution["tokens"],
     )
 
-    print('g.user',g.user)
-    if session.get(CURRENT_USER_KEY):
-        # do this if user is logged in
-        # print('logged in submission')
-        story.contribute("user", text, user_id=g.user.id)
-        db.session.add(story)
-        db.session.commit()
+    # print('g.user',g.user)
+    # if session.get(CURRENT_USER_KEY):
+    #     # do this if user is logged in
+    #     # print('logged in submission')
+    #     story.contribute("user", text, user_id=g.user.id)
+    #     db.session.add(story)
+    #     db.session.commit()
 
     # dump the serialized story into the flask session
     session[STORY_KEY] = json.dumps(story.serialize())
 
-
-    return jsonify({"role": ai_contribution["role"], "content": ai_contribution["content"]})
+    print('STORY AFTER CONTRIBUTION', story.serialize())
+    print('STORY AFTER CONTRIBUTION', jsonify(story=story.serialize()))
+    # return jsonify({"role": ai_contribution["role"], "content": ai_contribution["content"]})
+    latest = story.serialize()['contributions'][-1]
+    print('LATESTTTTTTTT',latest)
+    return jsonify(story=story.serialize(),latest=latest)
 
 
 

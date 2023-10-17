@@ -16,7 +16,7 @@ class User(db.Model):
 
     def __repr__(self):
         s = self
-        return f'User id: {s.id}, created_at: {s.created_at}, first_name: {s.first_name}, username:{s.username}, (rel backlink) stories: {s.stories}'
+        return f'User id: {s.id}, created_at: {s.created_at}, first_name: {s.first_name}, username:{s.username}'
     
     id = db.Column(db.UUID(as_uuid=True), primary_key=True, default=uuid4)
     created_at = db.Column(db.DateTime, default=datetime.utcnow())
@@ -66,21 +66,6 @@ class User(db.Model):
         return False
 
 
-
-# class Guest(db.Model):
-#     """ Holds user ids for users who have not authenticated"""
-
-#     __tablename__ = 'guests'
-
-#     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-#     created_at = db.Column(db.DateTime, default=datetime.utcnow())
-#     user_id = db.Column(
-#         db.UUID(as_uuid=True), 
-#         db.ForeignKey('users.id', ondelete='cascade'), 
-#         nullable=True)
-
-
-
 class Story(db.Model):
     """ The context framework used to guide the story, including prompt, characters"""
 
@@ -95,6 +80,7 @@ class Story(db.Model):
     story_prompt = db.Column(db.Text)
     objective = db.Column(db.Text) # Not Needed, remove?
     characters = db.Column(db.Text) 
+    title = db.Column(db.Text)
 
     user = db.relationship('User', secondary='contributions', backref='stories')
 
@@ -131,7 +117,8 @@ class Story(db.Model):
                 'id': self.id,
                 'genre': self.genre,
                 'story_prompt': self.story_prompt,
-                'characters': self.characters
+                'characters': self.characters,
+                'title': self.title
             },           
             #I'm not sure if this version of serialization will work.
             'contributions': 
@@ -169,13 +156,14 @@ class AnonStory():
 
     ''' This model maintains a story before a user authenticates and before a story gets saved in the db'''
     
-    def __init__(self,id=None,genre='',story_prompt='',characters=[],objective='',contributions=[]):
+    def __init__(self,id=None,genre='',story_prompt='',characters=[],objective='',contributions=[],title=''):
         self.id = id
         self.genre = genre
         self.story_prompt = story_prompt
         self.characters = characters
         self.objective = objective
         self.contributions = contributions
+        self.title = title
 
     def contribute(self,role,content,tokens=0):
         '''Accepts a role and content, then appends it to contributions list. Expects role to be "user" or "assistant" and content should be a string.'''
@@ -192,7 +180,7 @@ class AnonStory():
     
 
     def convert_to_story(self,user):
-        # todo
+
         print('===INSIDE CONVERT TO STORY===')
         if self.id:
             return db.session.get(Story,self.id)
@@ -202,6 +190,7 @@ class AnonStory():
                 story_prompt=self.story_prompt,
                 characters=self.characters,
                 objective=self.objective,
+                title=self.title
                 )
             db.session.add(story)
             db.session.commit()
@@ -222,7 +211,8 @@ class AnonStory():
                 'genre': self.genre,
                 'story_prompt': self.story_prompt,
                 'characters': self.characters,
-                'objective': self.objective
+                'objective': self.objective,
+                'title': self.title
                 },
             'contributions': self.contributions
             # [ {role:text for role,text in item.items()} for item in self.contributions ]

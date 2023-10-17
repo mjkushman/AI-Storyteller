@@ -50,7 +50,7 @@ textarea, select, input {
   /* background-color: red; */
 }
 
-.story-index-container {
+.story-index-container, nav {
   max-width: 80%;
   padding: 3%;
   /* justify-items: center; */
@@ -62,6 +62,11 @@ textarea:focus, select:focus, input:focus {
 textarea {
   font-size: 1.2em;
   /* padding: 5%; */
+}
+
+#storyPromptHeadline {
+  font-size: 1.2em;
+  font-weight: bold;
 }
 
 .contact-div {
@@ -85,4 +90,50 @@ button {
 .user {
 
   color: rgb(120, 0, 0);
+}
+
+/*  Person is Typing animation */
+
+/* $dot-width: 10px;
+$dot-color: #3b5998;
+$speed: 1.5s; */
+
+.typing-message {
+  display: inline-flex;
+  align-items: left;
+  justify-content: left;
+  padding: 6px;
+}
+
+.typing-dots {
+  width: 7px;
+  height: 7px;
+  background-color: #4E75B9;
+  border-radius: 50%;
+  display: inline-flex;
+  margin: 0 2px;
+  animation: loadingFade 1s infinite;
+  animation-delay: 0;
+}
+
+.typing-dots:nth-child(2) {
+  opacity: 0.8;
+  animation-delay: 0.2s;
+}
+
+.typing-dots:nth-child(3) {
+  opacity: 0.4;
+  animation-delay: 0.4s;
+}
+
+@keyframes loadingFade {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0;
+  }
 }

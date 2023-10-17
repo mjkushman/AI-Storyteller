@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}{{story.story_prompt}}{% endblock %}
+{% block content %}
+
+
+
+<div class="container">
+
+    <div class="container col-md-8">
+    <form action="" method="POST">
+        {{form.hidden_tag()}}
+        {% for err in form.errors %} {{err}} {% endfor %}
+        <div class="row">
+            <div class="col mx-auto">
+                {# {{form.story_id(value_=story.id)}} #}
+                {{form.story_id}}
+                {{form.title}}
+            </div>
+            <div class="col-1">
+                <button class="btn btn-sm btn-outline-primary">Save</button>    
+            </div>
+        </div>
+    </form>
+    </div>
+
+    <div class="container col-md-8 story">
+
+        <p>A <strong>{{ story.genre }}</strong> story by <span class="user">
+        {% for user in story.user%}
+            {{user.username }}
+        {% endfor %}
+        </span>
+
+        <p>{{ story.story_prompt }} 
+        {% for contribution in story.contributions %}
+            <span class="{{ contribution.role }}">{{contribution.content}}</span>
+            {% endfor %}</p>
+
+    </div>
+</div>
+
+{% endblock %}

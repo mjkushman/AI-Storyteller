@@ -1,5 +1,10 @@
-let story = {'context':{},'contributions':[]}
+let story = localStorage.getItem('story')
+if (story == null) {
+    story = {context:{},contributions:[]}
+}
+
 const storyDiv = $('#story')
+
 
 const contributionSection = $('#contribuionSection')
 const inputForm = $('#inputForm')
@@ -9,7 +14,7 @@ let logoutLink = $('.logoutLink')
 
 const signUpModal = $('#signUpModal')
 const signInModal = $('#authModal')
-
+const skipTurn = $('.skip-turn')
 
 
 function randomizePrompt(e){
@@ -59,7 +64,7 @@ function processContextForm(e) {
     storyGenre.val(contextGenre.val())
     storyPrompt.val(contextPrompt.val())
     
-    $('#storyGenreHeadline').text(contextGenre.val())
+    $('#storyGenreHeadline').text(contextGenre.val()+' Story')
     $('#storyPromptHeadline').text(contextPrompt.val())
     $('.context-form').addClass('d-none')
     $('.context-form').removeClass('d-block')
@@ -75,28 +80,32 @@ function processContextForm(e) {
 }
 
 
+
+
 // handle submission of Story form
 async function processStoryForm(e) {
     e.preventDefault();
 
     formData = new FormData(this);
-    // console.log(this) // evaluates to the form element
+    console.log(this) // evaluates to the form element
     
     let userText = this.elements['inputField'].value
     updateStoryDiv(userText, 'user');
-    
     // Send the user's contribution to the server. Expect assistant contribution in response.
     let response = await serverRequest(formData);
     
-    updateStoryDiv(response.content, response.role)
+    updateStoryDiv(response.latest.content, response.latest.role)
     
     // update the story variable and store it
-    story.contributions.push({'role':'user','content':userText})
-    story.contributions.push({'role':response.role,'content':response.content})
+    // console.log(response.story)
+    story = response.story
     storeStory();
-
+    
+    // MOVED THIS up higher.
+    // $('#inputField').val('') //clear out the field
     $('#inputField').val('') //clear out the field
 }
+
 
 
 //send the user's input to server
@@ -113,8 +122,8 @@ async function serverRequest(formData){
         // contentType: 'application/json',
         contentType: false,
         success: function() {
-            // updateStoryDiv(result,'ai')
-            // addListeners()
+
+            
             
         },
         error: function(){
@@ -125,65 +134,101 @@ async function serverRequest(formData){
 }
 
 
-async function processSignIn(e){
-    // console.log('processSignIn called')
 
-    e.preventDefault();
+// async function processSignIn(e){
+//     // console.log('processSignIn called')
 
-    formData = new FormData(this);
+//     e.preventDefault();
 
-    let response = await $.ajax({
-        type: 'POST',
-        url: `/signin`,
-        data: formData,
-        processData: false,
-        // contentType: 'application/json',
-        contentType: false,
-        success: function(response) {
-            // updateStoryDiv(result,'ai')
-            // console.log(response)
-            signInModal.modal('hide')
+//     formData = new FormData(this);
+
+//     let response = await $.ajax({
+//         type: 'POST',
+//         url: `/signin`,
+//         data: formData,
+//         processData: false,
+//         // contentType: 'application/json',
+//         contentType: false,
+//         success: function(response) {
+//             // updateStoryDiv(result,'ai')
+//             // console.log(response)
+//             signInModal.modal('hide')
             
-        },
-        error: function(){
-            alert('Oh no! Something went wrong.')
-        }
-    })
-    // return response
-    // Set the user variable
+//         },
+//         error: function(){
+//             alert('Oh no! Something went wrong.')
+//         }
+//     })
+//     // return response
+//     // Set the user variable
 
-}
+// }
 
 
 function storeStory(){
     //store in storage
+    
+    // NOTE TO SELF: currently testing if the stringify method is necessary.
     localStorage.setItem('story',JSON.stringify(story))
+    // localStorage.setItem('story',story)
 }
 
 function passStory(){
     //pass story to server
-    let savedStory = localStorage.getItem('story',JSON.stringify(story))
+    let savedStory = localStorage.getItem('story')
 
-    // console.log('saved story', savedStory)
+    console.log('saved story', savedStory)
+    if (!savedStory){
+        savedStory = JSON.stringify('');
+    }
+    console.log('saved story', savedStory)
 
-    if (savedStory) {
-        // console.log('savedstory true')
-        $.ajax({
-            url:'/api/retrieve',
-            type: 'POST',
-            data: savedStory,
-            contentType: 'application/json'
-        })
-    }
-    else {
-        // console.log('savedstory false')
-        $.ajax({
-            url:'/api/retrieve',
-            type: 'POST',
-            data: JSON.stringify('none'),
-            contentType: 'application/json'
-        })
-    }
+
+    $.ajax({
+        url:'/api/retrieve',
+        type: 'POST',
+        data: savedStory,
+        contentType: 'application/json',
+        success: function(data) {
+            story = data.story;
+            storeStory()},
+        error: function(){
+            alert('Something went wrong exchanging story with server')}
+    })
+    
+
+
+
+
+    // if (savedStory) {
+    //     // console.log('savedstory true')
+    //     $.ajax({
+    //         url:'/api/retrieve',
+    //         type: 'POST',
+    //         data: savedStory,
+    //         contentType: 'application/json',
+    //         success: function(data) {
+    //             story = data.story;
+    //             storeStory()},
+    //         error: function(){
+    //             alert('Something went wrong exchanging story with server')}
+    // })
+    // }
+    
+    // else {
+    //     // console.log('savedstory false')
+    //     $.ajax({
+    //         url:'/api/retrieve',
+    //         type: 'POST',
+    //         data: JSON.stringify('none'),
+    //         contentType: 'application/json',
+    //         success: function(data) {
+    //             story = data.story;
+    //             storeStory()},
+    //         error: function(){
+    //             alert('Something went wrong exchanging story with server')}
+    //     })
+    // }
     
 }
 
@@ -202,8 +247,16 @@ function clearStory(){
 function updateStoryDiv(content,role){
     // console.log('text is',content)
     let span = $('<span />').attr('class',role).html(' '+content);
-
-    storyDiv.append(span)
+    // storyDiv.append(span)
+    span.insertBefore($('#typing-message'))
+    if(role=='user'){
+        $('.typing-message').show()
+        $('#turn-notice').hide()
+    }
+    else {
+        $('.typing-message').hide()
+        $('#turn-notice').show()
+    }
 }
 
 

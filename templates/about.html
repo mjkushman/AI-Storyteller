@@ -58,45 +58,6 @@ endblock %} {% block content %}
         </div>
       </section>
 
-      <section>
-        <div class="container contact-div">
-      {% if success %}
-        <p>Thank you for your message!</p>
-        {% elif fail %}
-        <p>Sorry, something went wrong</p>
-      {% else %}
-          <h2>Comments, questions, suggestions? Get in touch.</h2>
-          <form action="" , method="POST" id="contactForm">
-            {{ form.hidden_tag() }}
-            <div>
-              
-              <div class="form-group mb-3">
-                <div>
-                    {{form.name}}
-                    {% for err in form.name.errors%}
-                    <small class="form-text"> {{err}} </small>
-                    {% endfor %}
-                </div>
-                <div>
-                    {{form.email}}
-                    {% for err in form.email.errors%}
-                    <small class="form-text"> {{err}} </small>
-                    {% endfor %}
-                </div>
-                <div>
-                {{form.message(class_='contribution-area')}}
-                {% for err in form.message.errors%}
-                <small class="form-text"> {{err}} </small>
-                {% endfor %}
-                </div>
-              </div>
-
-            </div>
-            <button id="submit" class="btn btn-outline-secondary">Send</button>
-          </form>
-        {% endif %}
-        </div>
-      </section>
     </div>
   </div>
 </div>

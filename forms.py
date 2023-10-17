@@ -10,10 +10,12 @@ class ContextForm(FlaskForm):
     story_prompt = TextAreaField("Story Prompt", validators=[InputRequired(message='Please include a starter prompt')], id='storyPrompt', )
 
 class StoryForm(FlaskForm):
-    body = TextAreaField("", validators=[InputRequired(message='How will you add to the story?'), Length(min=1,max=400)], id='inputField')
+    # body = TextAreaField("", validators=[InputRequired(message='How will you add to the story?'), Length(min=1,max=400)], id='inputField')
+    body = TextAreaField("", id='inputField')
     story_id = HiddenField("", validators=[InputRequired()])
     story_genre = HiddenField("")
     story_prompt = HiddenField("")
+    title = StringField("", id='storyTitleInput', render_kw={"placeholder":"Title your story"})
 
 class SignUpForm(FlaskForm):
     first_name = StringField("First Name", validators=[InputRequired(message='Please enter a name')], render_kw={"placeholder": "First Name"})
