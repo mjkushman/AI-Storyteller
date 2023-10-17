@@ -437,13 +437,14 @@ def handle_submission():
         tokens=ai_contribution["tokens"],
     )
 
-    # print('g.user',g.user)
+    print('g.user',g.user)
     # if session.get(CURRENT_USER_KEY):
-    #     # do this if user is logged in
-    #     # print('logged in submission')
-    #     story.contribute("user", text, user_id=g.user.id)
-    #     db.session.add(story)
-    #     db.session.commit()
+    if g.user:
+        # do this if user is logged in
+        # print('logged in submission')
+        # story.contribute("user", text, user_id=g.user.id)
+        db.session.add(story)
+        db.session.commit()
 
     # dump the serialized story into the flask session
     session[STORY_KEY] = json.dumps(story.serialize())
