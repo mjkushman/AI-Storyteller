@@ -11,16 +11,18 @@
 <div class="row story-index container">
     <div class="col-10 mx-auto">
 
-{% for story in story_list %}
+{% for story in story_list|reverse %}
     <div class="container story-link-div">
-        {% if story.title %} <a href={{url_for('render_story',story_id=story.id)}}>{{story.title}} </a>{% endif %}
+        {% if story.title %} <a class="story-title-link" href={{url_for('render_story',story_id=story.id)}}>{{story.title}} </a>
+        {% else  %} <i><a class="story-link" href={{url_for('render_story',story_id=story.id) }}>Untitled Story</a></i>
+        {% endif %}
         <p>A <strong>{{ story.genre }}</strong> story by <span class="user">
         {% for user in story.user%}
             {{user.username }}
         {% endfor %}
         </span> with help from <span class="assistant">AI</span><br>
-
-        <a class="link-underline link-underline-opacity-0 story-link" href="{{ url_for('render_story',story_id=story.id) }}">{{story.story_prompt}} {% if story.contributions %} {{story.contributions[0].body}} {% endif %}</a></p>
+        <i>
+        <a class="link-underline link-underline-opacity-0 story-link" href="{{ url_for('render_story',story_id=story.id) }}">{{story.story_prompt}} {% if story.contributions %} {{story.contributions[0].body}} {% endif %}</a></p></i>
         
         
 

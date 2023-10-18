@@ -49,12 +49,12 @@ app.config["MAIL_USERNAME"] = 'contact@writealong.xyz'
 app.config["MAIL_PASSWORD"] = (os.environ.get('MAIL_PASSWORD'))
 mail.init_app(app)
 
+# Commenting out for publishing
+# debug = DebugToolbarExtension(app)
 
-debug = DebugToolbarExtension(app)
-
-app.config['DEBUG'] = True
+app.config['DEBUG'] = False
 app.config['ENV'] = 'development'
-app.config['TESTING'] = True
+app.config['TESTING'] = False
 
 with app.app_context():
     connect_db(app)
@@ -78,9 +78,6 @@ def do_logout():
     if STORY_KEY in session:
         del session[STORY_KEY]
 
-# is this DEPRECATED???
-# def set_story_session(story):
-#     db.session = story.id
 
 def clear_story():
     if STORY_KEY in session:
@@ -98,8 +95,8 @@ def set_user():
     
     if STORY_KEY in session:
         # User has a story in session. It's either an authenticated story or anonstory
-        # print('SESSION[STORY_KEY] BEFORE REQUEST',session[STORY_KEY])
-        print('BEFORE REQUEST - SESSION STORY:', session[STORY_KEY])
+
+        # print('BEFORE REQUEST - SESSION STORY:', session[STORY_KEY])
         story_data = json.loads(session[STORY_KEY])
         if 'id' in story_data['context']:
             # if story has an id, it is authenticated
@@ -115,8 +112,8 @@ def set_user():
         # No story in session or local storage
         g.story = None
 
-    print('BEFORE REQUEST - g.story:',g.story)
-    print('BEFORE REQUEST - g.user',g.user)
+    # print('BEFORE REQUEST - g.story:',g.story)
+    # print('BEFORE REQUEST - g.user',g.user)
 
 
 
@@ -161,9 +158,6 @@ def render_home():
         ("Young Adult", "Young Adult"),
         ]
 
-#  NEW CODE NEW CODE NEW CODE NEW CODE NEW CODE NEW CODE
-
-
     if request.method == 'POST':
         ''' Received a context form submission'''
 
@@ -189,12 +183,6 @@ def render_home():
             story_form = StoryForm(story_id=story.id,story_genre=story.genre,story_prompt=story.story_prompt)
 
             session[STORY_KEY] = json.dumps(story.serialize())
-            
-            # return render_template('write.html',
-            #                        story=story,
-            #                        story_form=story_form,
-            #                        user=user
-            #                        )
             # Use a redirect instead of render to implement PRG pattern. If user refreshes browser Post -> Redirect -> Get prevents the form from being submitted again which would create a new story.
             return redirect(url_for('render_home'))
         else:
@@ -203,42 +191,12 @@ def render_home():
 
     else:
         ''' GET request // Not a form submission'''
-        context_form = ContextForm()
-        
 
         if story:
             story_form = StoryForm(story_id=story.id,
                                    story_genre=story.genre,story_prompt=story.story_prompt)
-            print('GET HOME STORY FORM',story_form)
 
-        context_form.genre.choices = [
-            ("Adventure", "Adventure"),
-            ("Amateur Sleuth", "Amateur Sleuth"),
-            ("Children's", "Children's"),
-            ("Comedy", "Comedy"),
-            ("Conspiracy", "Conspiracy"),
-            ("Crime Drama", "Crime Drama"),
-            ("Disaster", "Disaster"),
-            ("Fantasy", "Fantasy"),
-            ("Ghost", "Ghost"),
-            ("Gothic", "Gothic"),
-            ("High Fantasy", "High Fantasy"),
-            ("Historical Fiction", "Historical Fiction"),
-            ("Horror", "Horror"),
-            ("Mystery", "Mystery"),
-            ("Psychological Thriller", "Psychological Thriller"),
-            ("Revenge Thriller", "Revenge Thriller"),
-            ("Romance", "Romance"),
-            ("Science Fiction", "Science Fiction"),
-            ("Steampunk Sci-Fi", "Steampunk Sci-Fi"),
-            ("Suspence", "Suspence / Thriller"),
-            ("Wereworlf Romance", "Wereworlf Romance"),
-            ("Western", "Western"),
-            ("Young Adult", "Young Adult"),
-            ]
         return render_template('write.html',story=story, context_form=context_form, user=user, story_form=story_form)
-
-#  NEW CODE NEW CODE NEW CODE NEW CODE NEW CODE NEW CODE
 
 
 @app.route('/sign-up', methods=['GET','POST'])
@@ -282,9 +240,9 @@ def render_sign_in():
         if user:
             do_login(user)
             if story:
-                print('about to convert story to story')
+                # print('about to convert story to story')
                 story = story.convert_to_story(user)
-                print('converted story')
+                # print('converted story')
                 g.story = story
                 session[STORY_KEY] = json.dumps(story.serialize())
             flash(f'Welcome back {user.username}', 'success')
@@ -321,16 +279,13 @@ def render_story(story_id):
     user = g.user
     story = Story.query.get_or_404(story_id)
     
-    
     # print(is_user_story)
 
     return render_template('story_detail.html', story=story, user=user)
 
 @app.route('/stories/<story_id>/edit', methods=['GET','POST'])
 def render_story_edit(story_id):
-    # print(request.method)
-    # print(request.args)
-    # print(request.form)
+
     user = g.user
     story = Story.query.get_or_404(story_id)
     # If the current story doesn't belong to user, redirect to story detail, not edit
@@ -397,11 +352,11 @@ def render_contact():
 @app.route('/api/retrieve', methods=['POST'])
 def retrieve_story():
     data = request.get_json()
-    print('RETRIEVE DATAAAAAAAA',data)
+    # print('RETRIEVE DATAAAAAAAA',data)
     story=g.story
-    print('RETRIEVE STORYYYYYYY',story)
-    if story:
-        print('RETRIEVE STORYYYYYYY',story.serialize())
+    # print('RETRIEVE STORYYYYYYY',story)
+    # if story:
+        # print('RETRIEVE STORYYYYYYY',story.serialize())
     
     #  If there's already a story in session, send back most updated story
     if story:
@@ -440,18 +395,9 @@ def handle_submission():
     ''' Story object must already be created. Eithe Story or AnonStory. Story will have ID.'''
     print('NEW CONTRIBUTE REQUEST RECEIVED')
 
-    
     story = g.story # May evaluate to a story or None (aka False)
-    print('STORY in CONTRIBUTE',story)
-
-
     content = request.form.get("body")
-    story_prompt = request.form.get('story_prompt')
-    genre = request.form.get('story_genre')
-
-    # print('content is or false?')    
-    # print(bool(content))
-
+    
     if content:
         #  if content = false, the user is skipping their turn.
         if g.user:
@@ -464,8 +410,8 @@ def handle_submission():
             story.contribute(role='user',content=content)
 
     
-    print('PRINTING story = gstory ',story)
-    print('PRINTING story contributions= gstory ')
+    # print('PRINTING story = gstory ',story)
+    # print('PRINTING story contributions= gstory ')
     print([s for s in story.contributions])
     
     # GET AI CONTRIBUTION
@@ -477,24 +423,19 @@ def handle_submission():
         content=ai_contribution["content"],
         tokens=ai_contribution["tokens"],
     )
-
-    # if session.get(CURRENT_USER_KEY):
+    
     if g.user:
         # do this if user is logged in
         # print('logged in submission')
-
         db.session.add(story)
         db.session.commit()
 
     # dump the serialized story into the flask session
     session[STORY_KEY] = json.dumps(story.serialize())
-    print('PRINTING SESSION AFTER UPDATING SESSION', session[STORY_KEY])
+    # print('PRINTING SESSION AFTER UPDATING SESSION', session[STORY_KEY])
 
-    print('STORY AFTER CONTRIBUTION', story.serialize())
-    print('STORY AFTER CONTRIBUTION', jsonify(story=story.serialize()))
-    # return jsonify({"role": ai_contribution["role"], "content": ai_contribution["content"]})
+    # print('STORY AFTER CONTRIBUTION', story.serialize())
     latest = story.serialize()['contributions'][-1]
-    print('LATESTTTTTTTT',latest)
     return jsonify(story=story.serialize(),latest=latest)
 
 
@@ -574,7 +515,7 @@ def get_ai_contribution(story):
         *recent_conversation,
         {"role": "system", "content": system_outtro},
     ]
-    print('========= Messages Sent======', messages)
+    # print('========= Messages Sent======', messages)
 
     # make the call
     response = openai.ChatCompletion.create(

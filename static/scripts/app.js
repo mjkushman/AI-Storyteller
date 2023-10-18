@@ -52,70 +52,18 @@ function randomizePrompt(e){
 $('#randomizePrompt').click(randomizePrompt)
 $(document).ready(randomizePrompt)
 
-//  Handle submission of context form
-function processContextForm(e) {
-    // Handling of this form is client-side only.
-    e.preventDefault();
-    // console.log('story started')
-    let contextGenre = $('#genre')
-    let contextPrompt = $('#storyPrompt')
-    // populate the story form with these values
-    let storyGenre = $('#story_genre')
-    let storyPrompt = $('#story_prompt')
-    
-    storyGenre.val(contextGenre.val())
-    storyPrompt.val(contextPrompt.val())
-    
-    $('#storyGenreHeadline').text(contextGenre.val()+' Story')
-    $('#storyPromptHeadline').text(contextPrompt.val())
-    $('.context-form').addClass('d-none')
-    $('.context-form').removeClass('d-block')
-    $('.contribution-form').removeClass('d-none')
-    $('.contribution-form').addClass('d-block')
-
-
-    // update story variable. Do I need to do this?
-    story.context= {
-        'genre':$('#genre').val(),
-        'story_prompt':$('#storyPrompt').val()
-    } 
-}
-
-
 
 
 // handle submission of Story form
 async function processStoryForm(e) {
     e.preventDefault();
-
     formData = new FormData(this);
-    console.log(this) // evaluates to the form element
-    
+    // console.log(this) // evaluates to the form element
+    // Add user's text to story.
     let userText = this.elements['inputField'].value
     updateStoryDiv(userText, 'user');
+    
     // Send the user's contribution to the server. Expect assistant contribution in response.
-    let response = await serverRequest(formData);
-    
-    updateStoryDiv(response.latest.content, response.latest.role)
-    
-    // update the story variable and store it
-    // console.log(response.story)
-    story = response.story
-    storeStory();
-    
-    // MOVED THIS up higher.
-    // $('#inputField').val('') //clear out the field
-    $('#inputField').val('') //clear out the field
-}
-
-
-
-//send the user's input to server
-async function serverRequest(formData){
-    
-    // console.log('request sent:', JSON.stringify(formData.entries()))
-    // console.log('values', formData.values())
-    
     let response = await $.ajax({
         type: 'POST',
         url: `/api/contribute`,
@@ -123,54 +71,25 @@ async function serverRequest(formData){
         processData: false,
         // contentType: 'application/json',
         contentType: false,
-        success: function() {
-
-            
-            
+        success: function(data) {
+            // Update the story div upon success
+            updateStoryDiv(data.latest.content, data.latest.role)
+            // update the story variable and store it
+            story = data.story
+            storeStory();
         },
         error: function(){
-            alert('Oh no! Something went wrong.')
+            alert("Oh no! Trouble reaching the server.")
         }
     })
-    return response
+
+    $('#inputField').val('') //clear out the field
 }
-
-
-
-// async function processSignIn(e){
-//     // console.log('processSignIn called')
-
-//     e.preventDefault();
-
-//     formData = new FormData(this);
-
-//     let response = await $.ajax({
-//         type: 'POST',
-//         url: `/signin`,
-//         data: formData,
-//         processData: false,
-//         // contentType: 'application/json',
-//         contentType: false,
-//         success: function(response) {
-//             // updateStoryDiv(result,'ai')
-//             // console.log(response)
-//             signInModal.modal('hide')
-            
-//         },
-//         error: function(){
-//             alert('Oh no! Something went wrong.')
-//         }
-//     })
-//     // return response
-//     // Set the user variable
-
-// }
 
 
 function storeStory(){
     //store in storage
     
-    // NOTE TO SELF: currently testing if the stringify method is necessary.
     localStorage.setItem('story',JSON.stringify(story))
     // localStorage.setItem('story',story)
 }
@@ -179,13 +98,11 @@ function passStory(){
     //pass story to server
     let savedStory = localStorage.getItem('story')
 
-    console.log('saved story', savedStory)
+    // console.log('saved story', savedStory)
     if (!savedStory){
         savedStory = JSON.stringify('');
     }
-    console.log('saved story', savedStory)
-
-
+    
     $.ajax({
         url:'/api/retrieve',
         type: 'POST',
@@ -210,7 +127,6 @@ function clearStory(){
 }
 
 
-
 //Render the returned text on page
 function updateStoryDiv(content,role){
     // console.log('text is',content)
@@ -228,18 +144,10 @@ function updateStoryDiv(content,role){
 }
 
 
-
-
-
-
 // Add event listeners to forms
 inputForm.submit(processStoryForm)
 
 function addListeners(){
-    
-
-    // let contextForm = $('#contextForm')
-    // contextForm.submit(processContextForm)
 
     logoutLink.click(clearStory)
 
