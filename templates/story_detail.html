@@ -9,9 +9,9 @@
 
     <div class="container col-md-8 story">
         {% if story.title%}
-            <h2 class="display-2">{{story.title}}</h2>
+            <h2 class="display-3">{{story.title}}</h2>
         {% endif %}
-        {% if is_user_story %}
+        {% if story.user_id == user.id %}
             <a href={{ url_for( 'render_story_edit', story_id=story.id) }}>Edit title</a>
         {% endif %}
 
@@ -25,7 +25,8 @@
         {% for contribution in story.contributions %}
             <span class="{{ contribution.role }}">{{contribution.content}}</span>
             {% endfor %}</p>
-
+        {% if story.user_id == user.id %}
+        <div class="container"><a class="story-link" href={{url_for('render_home', story_id=story.id)}}>Continue writing this story</a> </div>{% endif %}
     </div>
 </div>
 

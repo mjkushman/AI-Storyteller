@@ -1,3 +1,4 @@
+
 import os
 import openai
 import json
@@ -99,14 +100,13 @@ def set_user():
     if STORY_KEY in session:
         # User has a story in session. It's either an authenticated story or anonstory
         # print('SESSION[STORY_KEY] BEFORE REQUEST',session[STORY_KEY])
-        print('BEFORE REQUEST - SESSION STORY:', session[STORY_KEY])
         story_data = json.loads(session[STORY_KEY])
         if 'id' in story_data['context']:
             # if story has an id, it is authenticated
             g.story = db.session.get(Story, story_data['context']['id'])
         else:
             # story does not have an id and is not authenticated.
-            # story_data = json.loads(session[STORY_KEY])
+            story_data = json.loads(session[STORY_KEY])
             
             g.story = AnonStory(**story_data['context'])
             g.story.contributions = story_data['contributions']
@@ -115,8 +115,8 @@ def set_user():
         # No story in session or local storage
         g.story = None
 
-    print('BEFORE REQUEST - g.story:',g.story)
-    print('BEFORE REQUEST - g.user',g.user)
+    print('current g.story',g.story)
+    print('current g.user',g.user)
 
 
 
@@ -124,17 +124,11 @@ def set_user():
 @app.route("/", methods=["GET", "POST"])
 def render_home():
     user = g.user #evaluates to a user object or None
-    
-    #  logic to continue a story from the Story Detail page
-    story_id = request.args.get('story_id')
-    if story_id:
-        story = Story.query.get_or_404(story_id)
-        session[STORY_KEY] = json.dumps(story.serialize())
-    else:
-        story = g.story
-    
-    story_form=StoryForm()
+    story = g.story
+
+
     context_form = ContextForm()
+
     context_form.genre.choices = [
         ("Adventure", "Adventure"),
         ("Amateur Sleuth", "Amateur Sleuth"),
@@ -165,18 +159,18 @@ def render_home():
 
 
     if request.method == 'POST':
-        ''' Received a context form submission'''
+        ''' We received a context form submission'''
 
         #  If the person is a user (logged in), create a Story. Otherwise create an AnonStory
         print('POST RECEIVED')
         if context_form.validate_on_submit():
+            print('valid contex form submission')
             genre = context_form.genre.data
             story_prompt = context_form.story_prompt.data
 
             if user:
                 story = Story(genre=genre,
-                                story_prompt=story_prompt,
-                                user_id=user.id)
+                                story_prompt=story_prompt)
                 db.session.add(story)
                 db.session.commit()
                 
@@ -188,28 +182,18 @@ def render_home():
 
             story_form = StoryForm(story_id=story.id,story_genre=story.genre,story_prompt=story.story_prompt)
 
-            session[STORY_KEY] = json.dumps(story.serialize())
-            
-            # return render_template('write.html',
-            #                        story=story,
-            #                        story_form=story_form,
-            #                        user=user
-            #                        )
-            # Use a redirect instead of render to implement PRG pattern. If user refreshes browser Post -> Redirect -> Get prevents the form from being submitted again which would create a new story.
-            return redirect(url_for('render_home'))
+            return render_template('write.html',
+                                   story=story,
+                                   story_form=story_form,
+                                   user=user
+                                   )
         else:
             flash('Could not create story','danger')
             return render_template('write.html', context_form=context_form)
 
     else:
-        ''' GET request // Not a form submission'''
+        ''' Not a form submission'''
         context_form = ContextForm()
-        
-
-        if story:
-            story_form = StoryForm(story_id=story.id,
-                                   story_genre=story.genre,story_prompt=story.story_prompt)
-            print('GET HOME STORY FORM',story_form)
 
         context_form.genre.choices = [
             ("Adventure", "Adventure"),
@@ -236,9 +220,54 @@ def render_home():
             ("Western", "Western"),
             ("Young Adult", "Young Adult"),
             ]
-        return render_template('write.html',story=story, context_form=context_form, user=user, story_form=story_form)
+        return render_template('write.html',story=story, context_form=context_form, user=user)
 
 #  NEW CODE NEW CODE NEW CODE NEW CODE NEW CODE NEW CODE
+
+
+
+    # if story:
+    #     # do this if there's already a story in progress
+    #     context_display='d-none'
+    #     contribution_display='d-block'
+    #     genre=story.genre
+    #     story_prompt=story.story_prompt
+        
+
+    #     contributions = story.contributions
+
+    #     story_form = StoryForm(story_prompt=story_prompt, story_genre=genre)
+    #     return render_template('write.html',
+    #                             user=user, story=story,
+    #                             story_form=story_form, 
+    #                             contributions=contributions, 
+    #                             contextForm=context_form,
+    #                             context_display=context_display, 
+    #                             contribution_display=contribution_display, 
+    #                             genre=genre)
+
+
+    # else:
+    #     # Do this if there is not already a story in progress
+    #     print('entering ELSE for home')
+    #     context_display='d-block'
+    #     contribution_display='d-none'
+
+    #     story_form=StoryForm()
+    #     return render_template("write.html", 
+    #                            contextForm=context_form,user=user, 
+    #                            story_form=story_form,
+    #                            context_display=context_display, 
+    #                            contribution_display=contribution_display)
+    
+
+
+    
+    
+    
+    
+
+
 
 
 @app.route('/sign-up', methods=['GET','POST'])
@@ -321,16 +350,16 @@ def render_story(story_id):
     user = g.user
     story = Story.query.get_or_404(story_id)
     
-    
-    # print(is_user_story)
+    is_user_story = bool(user and story in user.stories)
+    print(is_user_story)
 
-    return render_template('story_detail.html', story=story, user=user)
+    return render_template('story_detail.html', story=story, is_user_story=is_user_story)
 
 @app.route('/stories/<story_id>/edit', methods=['GET','POST'])
 def render_story_edit(story_id):
-    # print(request.method)
-    # print(request.args)
-    # print(request.form)
+    print(request.method)
+    print(request.args)
+    print(request.form)
     user = g.user
     story = Story.query.get_or_404(story_id)
     # If the current story doesn't belong to user, redirect to story detail, not edit
@@ -400,8 +429,6 @@ def retrieve_story():
     print('RETRIEVE DATAAAAAAAA',data)
     story=g.story
     print('RETRIEVE STORYYYYYYY',story)
-    if story:
-        print('RETRIEVE STORYYYYYYY',story.serialize())
     
     #  If there's already a story in session, send back most updated story
     if story:
@@ -437,7 +464,6 @@ def handle_title_update():
 @app.route("/api/contribute", methods=["POST"])
 def handle_submission():
     """Receive the API call from JS front end. Trigger appropriate functions"""
-    ''' Story object must already be created. Eithe Story or AnonStory. Story will have ID.'''
     print('NEW CONTRIBUTE REQUEST RECEIVED')
 
     
@@ -449,20 +475,34 @@ def handle_submission():
     story_prompt = request.form.get('story_prompt')
     genre = request.form.get('story_genre')
 
-    # print('content is or false?')    
-    # print(bool(content))
+    print('content is or false?')
+    print(bool(content))
 
-    if content:
-        #  if content = false, the user is skipping their turn.
-        if g.user:
-            #  If user is authenticated, take action on a Story. Otherwise, AnonStory
-            if bool(content):
-                story.contribute(role='user',content=content,user_id=g.user.id)
-                db.session.add(story)
-                db.session.commit()
-        else:
+
+    if g.user:
+        # create a real story if logged in
+        if not story:
+            print('NOT STORY')
+            story = Story(
+                genre = genre,
+                story_prompt = story_prompt)
+            db.session.add(story)
+            db.session.commit()
+        if bool(content):
+            story.contribute(role='user',content=content,user_id=g.user.id)
+            db.session.add(story)
+        db.session.add(story)
+        db.session.commit()
+
+    else:
+        if not story:
+            # create a story if one doesn't exist
+            story = AnonStory(
+                genre = genre,
+                story_prompt = story_prompt
+                )
+        if content:
             story.contribute(role='user',content=content)
-
     
     print('PRINTING story = gstory ',story)
     print('PRINTING story contributions= gstory ')
@@ -488,7 +528,6 @@ def handle_submission():
 
     # dump the serialized story into the flask session
     session[STORY_KEY] = json.dumps(story.serialize())
-    print('PRINTING SESSION AFTER UPDATING SESSION', session[STORY_KEY])
 
     print('STORY AFTER CONTRIBUTION', story.serialize())
     print('STORY AFTER CONTRIBUTION', jsonify(story=story.serialize()))

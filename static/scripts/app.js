@@ -8,6 +8,8 @@ const storyDiv = $('#story')
 
 const contributionSection = $('#contribuionSection')
 const inputForm = $('#inputForm')
+
+
 let contextDiv = $('#contextDiv')
 let newStoryBtn = $('#newStoryBtn')
 let logoutLink = $('.logoutLink')
@@ -195,41 +197,6 @@ function passStory(){
         error: function(){
             alert('Something went wrong exchanging story with server')}
     })
-    
-
-
-
-
-    // if (savedStory) {
-    //     // console.log('savedstory true')
-    //     $.ajax({
-    //         url:'/api/retrieve',
-    //         type: 'POST',
-    //         data: savedStory,
-    //         contentType: 'application/json',
-    //         success: function(data) {
-    //             story = data.story;
-    //             storeStory()},
-    //         error: function(){
-    //             alert('Something went wrong exchanging story with server')}
-    // })
-    // }
-    
-    // else {
-    //     // console.log('savedstory false')
-    //     $.ajax({
-    //         url:'/api/retrieve',
-    //         type: 'POST',
-    //         data: JSON.stringify('none'),
-    //         contentType: 'application/json',
-    //         success: function(data) {
-    //             story = data.story;
-    //             storeStory()},
-    //         error: function(){
-    //             alert('Something went wrong exchanging story with server')}
-    //     })
-    // }
-    
 }
 
 function clearStory(){
@@ -237,7 +204,8 @@ function clearStory(){
     localStorage.removeItem('story');    
     let response = $.get('/api/restart',function(){
         location.href = '/'
-        location.reload()
+        // unnnecessary reload?
+        // location.reload()
     })
 }
 
@@ -265,13 +233,13 @@ function updateStoryDiv(content,role){
 
 
 // Add event listeners to forms
+inputForm.submit(processStoryForm)
 
 function addListeners(){
     
-    inputForm.submit(processStoryForm)
 
-    let contextForm = $('#contextForm')
-    contextForm.submit(processContextForm)
+    // let contextForm = $('#contextForm')
+    // contextForm.submit(processContextForm)
 
     logoutLink.click(clearStory)
 

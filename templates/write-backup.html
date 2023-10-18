@@ -13,7 +13,7 @@
         {# NEW CODE NEW CODE NEW CODE NEW CODE NEW CODE NEW CODE NEW CODE NEW CODE #}
         
       {% if not story %}
-<div class="context-form">
+<div class="context-form {{context_display}}">
   <div class="container col-md-5 mx-auto">
           <div class="text-center"> <p>Choose a genre and starting story prompt.</p>
           <p>Take turns writing the story with an AI co-writer.</p></div>
@@ -22,9 +22,8 @@
         
 
       <form action="" method="POST" id="contextform">
-          {% for err in context_form.errors %} {{err}} {% endfor %}
           <div class="container text-center">
-              {{context_form.hidden_tag()}}
+              
               <div class="col text-center">
                 <button id="randomizePrompt" type="button" class="btn btn-outline-secondary">Randomize genre and prompt</button>
               </div>
@@ -61,18 +60,73 @@
          </div>
          </form>
 
-      {% else %}
+      
+      {% endif %}
+
+
+
+
+
+
+        {# NEW CODE NEW CODE NEW CODE NEW CODE NEW CODE NEW CODE NEW CODE NEW CODE #}
+
+
+        {#  Context form start  #}
+        <form action="" method="GET" id="form">
+          <div class="container text-center">
+              
+              <div class="col text-center">
+                <button id="randomizePrompt" type="button" class="btn btn-outline-secondary">Randomize genre and prompt</button>
+              </div>
+
+            {#  Genre  #}
+          <div class="form mb-3 text-center">
+              {{context_form.genre(class_='')}} 
+          </div>
+
+            {#  Prompt #}
+            <div class="form mb-3 text-center">
+              <div>{{context_form.story_prompt(class_='', rows_='2')}}
+              {% for err in context_form.story_prompt.errors %}<small class="form-text">{{err}}</small>{% endfor %}
+              </div> 
+            </div>
+          
+          {#  randomize and submit buttons #}
+          <div class="container">
+            <div class="row justify-content-center">
+
+              <div class="col">
+                <div class="container"><button id="contextSubmit" class="btn btn-outline-primary btn-lg submit">Start Writing</button>
+                </div>
+
+              </div>
+
+            </div>
+
+            <div class="row">
+              
+            </div>
+          </div>
+        
+         </div>
+         </form>
+
+         {#  Context form end  #}
+      </div>
+  </div>
+</div>
+
 {# Story submission form #}
-<div class="container contribution-form">
+<div class="container contribution-form {{contribution_display}}">
   
     {# Story starts here #}
     <div id="story" class="col-md-8 mx-auto">
 
-      {% if story.title %} <h2>{{story.title}}</h2>{% endif%}
-      <p id="storyGenreHeadline">{% if story.genre %} {{story.genre}} {% endif %} Story</p>
+
+      <p id="storyGenreHeadline">{% if genre %} {{genre}} {% endif %} Story</p>
       <span id="storyPromptHeadline">{% if story %}{{ story.story_prompt }}{% endif %}</span>
   
-      {% for contribution in story.contributions %}
+      {% for contribution in contributions %}
           <span class="{{contribution['role']}}">{{contribution['content']}}</span>
           {% endfor %}
         <div class="typing-message" id="typing-message" style="display: none;">
@@ -85,7 +139,7 @@
 
 {# story form #}
   <div class="container col-md-6 mx-auto">
-    <form action="" method="POST" id="inputForm">
+    <form action="" method="POST" id="inputform">
       {{ story_form.hidden_tag() }} {{ story_form.story_id }}
       
       <div class="container">
@@ -133,22 +187,6 @@
 
 </div>
 {#  End contribution section #}
-
-
-      {% endif %}
-
-
-
-
-
-
-        {# NEW CODE NEW CODE NEW CODE NEW CODE NEW CODE NEW CODE NEW CODE NEW CODE #}
-
-      </div>
-  </div>
-</div>
-
-
   
 
 

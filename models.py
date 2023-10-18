@@ -82,7 +82,10 @@ class Story(db.Model):
     characters = db.Column(db.Text) 
     title = db.Column(db.Text)
 
+    user_id = db.Column(db.Text, db.ForeignKey('users.id'))
+    
     user = db.relationship('User', secondary='contributions', backref='stories')
+    
 
     contributions = db.relationship('Contribution')
     # Add method to add a contribution to this story. Adding a contribution should instantiate a new Contribution 
@@ -118,7 +121,8 @@ class Story(db.Model):
                 'genre': self.genre,
                 'story_prompt': self.story_prompt,
                 'characters': self.characters,
-                'title': self.title
+                'title': self.title,
+                'user_id':str(self.user_id)
             },           
             #I'm not sure if this version of serialization will work.
             'contributions': 
@@ -190,7 +194,8 @@ class AnonStory():
                 story_prompt=self.story_prompt,
                 characters=self.characters,
                 objective=self.objective,
-                title=self.title
+                title=self.title,
+                user_id=user.id
                 )
             db.session.add(story)
             db.session.commit()
