@@ -82,7 +82,7 @@ class Story(db.Model):
     characters = db.Column(db.Text) 
     title = db.Column(db.Text)
 
-    user_id = db.Column(db.Text, db.ForeignKey('users.id'))
+    user_id = db.Column(db.UUID, db.ForeignKey('users.id'))
     
     user = db.relationship('User', secondary='contributions', backref='stories')
     
