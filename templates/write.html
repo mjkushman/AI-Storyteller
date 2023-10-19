@@ -116,13 +116,13 @@
 <div class="container text-center restart-btn">
 <div class="row"><div class="col">
 <!-- NEW STORY BUTTON -->
-<button class="btn btn-outline-secondary" id="newStoryBtn">Start Over</button>
+<button class="btn btn-outline-secondary" id="newStoryBtn">New Story</button>
 </div>
       <!-- Sign in link -->
       {% if not user%}
-      <p>
-        <a href="/sign-in">Sign in</a> to save this story.
-      </p>
+      <small><p>
+        This story won't be saved until you <a href={{url_for('render_sign_in')}}>sign in</a> or <a href={{url_for('render_signup')}}>create an account.</a>
+      </p></small>
         {% else %}
         <p>Story is saved automatically.</p>
       {% endif %}
