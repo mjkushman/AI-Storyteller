@@ -153,7 +153,7 @@ def render_home():
         ("Science Fiction", "Science Fiction"),
         ("Steampunk Sci-Fi", "Steampunk Sci-Fi"),
         ("Suspence", "Suspence / Thriller"),
-        ("Wereworlf Romance", "Wereworlf Romance"),
+        ("Werewolf Romance", "Wereworlf Romance"),
         ("Western", "Western"),
         ("Young Adult", "Young Adult"),
         ]
