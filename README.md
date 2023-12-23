@@ -16,13 +16,16 @@ Take turns adding to a story and be surprised at your creativity.
 Write Along is built using Python and Flask web framework with PostgreSQL database.
 When an unauthenticated user creates a new story, an anonymous story object is instantiated. The anonymous story is saved to local storage to persist if the user leaves site or navigates around.
 
+![image](https://github.com/mjkushman/AI-Storyteller/assets/31631046/c777a57e-7063-40eb-b984-e3823e6e5fb5)
 
 
 ### Contributing to a story
 On  `/`, a user may contribute to a story, a sentence or two at a time. After each contribution, the AI will make its own contribution. This process continues as long as the user wants.
 
 When a user submits their contribution, an API request is made to OpenAI which includes important story context and instructions. OpenAI's LLM will respond with the next sentence in the story.
+![image](https://github.com/mjkushman/AI-Storyteller/assets/31631046/b38d4fa3-db83-4a13-a986-03488821da60)
 
+![image](https://github.com/mjkushman/AI-Storyteller/assets/31631046/4c5dd441-b5e5-4f65-ac63-0a61d056c981)
 
 
 ## Features
@@ -50,8 +53,12 @@ When a user submits their contribution, an API request is made to OpenAI which i
 - **Authentication and Story saving**
   * A user may create an account. Creating an account allows the user to save end edit their story. 
   * If authenticated, a user's story is automatically saved after each Contribution
+  * ![image](https://github.com/mjkushman/AI-Storyteller/assets/31631046/fcb945e5-222a-474b-96fa-97608968560c)
+
 - **Stories page**
   * `/stories` lists all saved stories. An authenticated user will see an option to edit stories they have created.
+  * ![image](https://github.com/mjkushman/AI-Storyteller/assets/31631046/90cdd797-8a96-4e63-ab89-d6fbd86f504d)
+
 - **Contact me**
   * Simple web form uses `flask_mail` to send an email to contact@writealong.xyz.
 
