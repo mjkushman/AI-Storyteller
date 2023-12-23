@@ -58,6 +58,8 @@ When a user submits their contribution, an API request is made to OpenAI which i
 - **Stories page**
   * `/stories` lists all saved stories. An authenticated user will see an option to edit stories they have created.
   * ![image](https://github.com/mjkushman/AI-Storyteller/assets/31631046/90cdd797-8a96-4e63-ab89-d6fbd86f504d)
+  * ![image](https://github.com/mjkushman/AI-Storyteller/assets/31631046/5479ba63-8ee5-4023-bab4-c0de9d09f012)
+
 
 - **Contact me**
   * Simple web form uses `flask_mail` to send an email to contact@writealong.xyz.
