@@ -9,9 +9,7 @@ Take turns adding to a story and be surprised at your creativity.
 - [Overview](#overview)
 - [Features](#features)
 - [Getting Started](#getting-started)
-- [Usage](#usage)
 - [Contributing](#contributing)
-- [License](#license)
 
 ## Overview
 
